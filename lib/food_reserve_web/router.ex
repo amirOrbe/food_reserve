@@ -20,7 +20,7 @@ defmodule FoodReserveWeb.Router do
   scope "/", FoodReserveWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    live "/", HomeLive, :index
   end
 
   # Other scopes may use custom stacks.

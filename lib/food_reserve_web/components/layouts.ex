@@ -35,37 +35,24 @@ defmodule FoodReserveWeb.Layouts do
 
   def app(assigns) do
     ~H"""
-    <header class="navbar px-4 sm:px-6 lg:px-8">
-      <div class="flex-1">
-        <a href="/" class="flex-1 flex w-fit items-center gap-2">
-          <img src={~p"/images/logo.svg"} width="36" />
-          <span class="text-sm font-semibold">v{Application.spec(:phoenix, :vsn)}</span>
-        </a>
-      </div>
-      <div class="flex-none">
-        <ul class="flex flex-column px-1 space-x-4 items-center">
-          <li>
-            <a href="https://phoenixframework.org/" class="btn btn-ghost">Website</a>
-          </li>
-          <li>
-            <a href="https://github.com/phoenixframework/phoenix" class="btn btn-ghost">GitHub</a>
-          </li>
-          <li>
-            <.theme_toggle />
-          </li>
-          <li>
-            <a href="https://hexdocs.pm/phoenix/overview.html" class="btn btn-primary">
-              Get Started <span aria-hidden="true">&rarr;</span>
-            </a>
-          </li>
-        </ul>
-      </div>
+    <header class="bg-white shadow-sm">
+      <nav class="container mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+        <div class="flex items-center">
+          <a href="/" class="flex items-center gap-2 text-xl font-bold text-gray-800">
+            <img src={~p"/images/logo.svg"} width="32" />
+            <span>FoodReserve</span>
+          </a>
+        </div>
+        <div class="flex items-center space-x-4">
+          <.link navigate={~p"/users/log-in"} class="text-gray-600 hover:text-gray-800">Log in</.link>
+          <.link navigate={~p"/users/register"} class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-lg">Register</.link>
+          <.theme_toggle />
+        </div>
+      </nav>
     </header>
 
-    <main class="px-4 py-20 sm:px-6 lg:px-8">
-      <div class="mx-auto max-w-2xl space-y-4">
-        {render_slot(@inner_block)}
-      </div>
+    <main>
+      {render_slot(@inner_block)}
     </main>
 
     <.flash_group flash={@flash} />
