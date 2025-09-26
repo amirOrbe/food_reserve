@@ -42,6 +42,7 @@ config :food_reserve, FoodReserveWeb.Endpoint,
 #
 # For production it's recommended to configure a different adapter
 # at the `config/runtime.exs`.
+# Configures the mailer
 config :food_reserve, FoodReserve.Mailer, adapter: Swoosh.Adapters.Local
 
 # Configure esbuild (the version is required)

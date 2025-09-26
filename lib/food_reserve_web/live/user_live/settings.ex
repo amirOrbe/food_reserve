@@ -9,59 +9,53 @@ defmodule FoodReserveWeb.UserLive.Settings do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
-      <div class="text-center">
-        <.header>
-          Account Settings
-          <:subtitle>Manage your account email address and password settings</:subtitle>
-        </.header>
+      <div class="max-w-3xl mx-auto space-y-8">
+        <div class="text-center">
+          <.header>
+            Ajustes de la Cuenta
+            <:subtitle>Administra tu correo electrónico y contraseña.</:subtitle>
+          </.header>
+        </div>
+
+        <!-- Change Email Card -->
+        <div class="bg-white p-8 rounded-2xl shadow-lg">
+          <h2 class="text-xl font-semibold mb-4">Cambiar Correo Electrónico</h2>
+          <.form for={@email_form} id="email_form" phx-submit="update_email" phx-change="validate_email">
+            <.input field={@email_form[:email]} type="email" label="Nuevo Correo Electrónico" required />
+            <div class="pt-4">
+              <.button variant="primary" phx-disable-with="Cambiando...">Cambiar Correo</.button>
+            </div>
+          </.form>
+        </div>
+
+        <!-- Change Password Card -->
+        <div class="bg-white p-8 rounded-2xl shadow-lg">
+          <h2 class="text-xl font-semibold mb-4">Cambiar Contraseña</h2>
+          <.form
+            for={@password_form}
+            id="password_form"
+            action={~p"/users/update-password"}
+            method="post"
+            phx-change="validate_password"
+            phx-submit="update_password"
+            phx-trigger-action={@trigger_submit}
+          >
+            <input
+              name={@password_form[:email].name}
+              type="hidden"
+              id="hidden_user_email"
+              value={@current_email}
+            />
+            <.input field={@password_form[:password]} type="password" label="Nueva Contraseña" required />
+            <.input field={@password_form[:password_confirmation]} type="password" label="Confirmar Nueva Contraseña" />
+            <div class="pt-4">
+              <.button variant="primary" phx-disable-with="Guardando...">
+                Guardar Contraseña
+              </.button>
+            </div>
+          </.form>
+        </div>
       </div>
-
-      <.form for={@email_form} id="email_form" phx-submit="update_email" phx-change="validate_email">
-        <.input
-          field={@email_form[:email]}
-          type="email"
-          label="Email"
-          autocomplete="username"
-          required
-        />
-        <.button variant="primary" phx-disable-with="Changing...">Change Email</.button>
-      </.form>
-
-      <div class="divider" />
-
-      <.form
-        for={@password_form}
-        id="password_form"
-        action={~p"/users/update-password"}
-        method="post"
-        phx-change="validate_password"
-        phx-submit="update_password"
-        phx-trigger-action={@trigger_submit}
-      >
-        <input
-          name={@password_form[:email].name}
-          type="hidden"
-          id="hidden_user_email"
-          autocomplete="username"
-          value={@current_email}
-        />
-        <.input
-          field={@password_form[:password]}
-          type="password"
-          label="New password"
-          autocomplete="new-password"
-          required
-        />
-        <.input
-          field={@password_form[:password_confirmation]}
-          type="password"
-          label="Confirm new password"
-          autocomplete="new-password"
-        />
-        <.button variant="primary" phx-disable-with="Saving...">
-          Save Password
-        </.button>
-      </.form>
     </Layouts.app>
     """
   end

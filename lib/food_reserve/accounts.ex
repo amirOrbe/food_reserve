@@ -76,8 +76,17 @@ defmodule FoodReserve.Accounts do
   """
   def register_user(attrs) do
     %User{}
-    |> User.email_changeset(attrs)
+    |> User.registration_changeset(attrs)
+    |> Ecto.Changeset.cast(attrs, [:name, :email, :phone_number, :password])
+    |> Ecto.Changeset.put_change(:hashed_password, Bcrypt.hash_pwd_salt(attrs["password"]))
     |> Repo.insert()
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking user registration changes.
+  """
+  def change_user_registration(user, attrs \\ %{}) do
+    User.registration_changeset(user, attrs)
   end
 
   ## Settings

@@ -44,8 +44,51 @@ defmodule FoodReserveWeb.Layouts do
           </a>
         </div>
         <div class="flex items-center space-x-4">
-          <.link navigate={~p"/users/log-in"} class="text-gray-600 hover:text-gray-800">Iniciar Sesión</.link>
-          <.link navigate={~p"/users/register"} class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-lg">Registrarse</.link>
+          <%= if @current_scope && @current_scope.user do %>
+            <div class="relative" x-data="{ open: false }">
+              <button @click="open = !open" class="flex items-center space-x-2 focus:outline-none">
+                <span class="font-semibold text-gray-700">Hola, {@current_scope.user.name}</span>
+                <.icon name="hero-chevron-down" class="w-4 h-4 text-gray-600" />
+              </button>
+              <div
+                x-show="open"
+                @click.away="open = false"
+                class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl z-20"
+                x-transition
+                x-cloak
+              >
+                <.link
+                  navigate={~p"/restaurants"}
+                  class="block px-4 py-2 text-gray-800 hover:bg-orange-100"
+                >
+                  Mis Restaurantes
+                </.link>
+                <.link
+                  navigate={~p"/users/settings"}
+                  class="block px-4 py-2 text-gray-800 hover:bg-orange-100"
+                >
+                  Ajustes
+                </.link>
+                <.link
+                  href={~p"/users/log-out"}
+                  method="delete"
+                  class="block px-4 py-2 text-gray-800 hover:bg-orange-100"
+                >
+                  Cerrar Sesión
+                </.link>
+              </div>
+            </div>
+          <% else %>
+            <.link navigate={~p"/users/log-in"} class="text-gray-600 hover:text-gray-800">
+              Iniciar Sesión
+            </.link>
+            <.link
+              navigate={~p"/users/register"}
+              class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-lg"
+            >
+              Registrarse
+            </.link>
+          <% end %>
           <.theme_toggle />
         </div>
       </nav>

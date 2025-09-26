@@ -46,6 +46,12 @@ liveSocket.connect()
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket
 
+// Alpine.js
+import Alpine from 'alpinejs'
+window.Alpine = Alpine
+Alpine.start()
+
+
 // The lines below enable quality of life phoenix_live_reload
 // development features:
 //

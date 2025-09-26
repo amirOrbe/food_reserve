@@ -3,7 +3,9 @@ defmodule FoodReserve.Accounts.User do
   import Ecto.Changeset
 
   schema "users" do
+    field :name, :string
     field :email, :string
+    field :phone_number, :string
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :confirmed_at, :utc_datetime
@@ -54,6 +56,23 @@ defmodule FoodReserve.Accounts.User do
     else
       changeset
     end
+  end
+
+  @doc """
+  A user changeset for registration.
+  """
+  def registration_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:name, :email, :phone_number, :password])
+    |> validate_required([:name, :email, :phone_number, :password])
+    |> validate_format(:email, ~r/^[^@,;\s]+@[^@,;\s]+$/,
+      message: "must have the @ sign and no spaces"
+    )
+    |> validate_length(:email, max: 160)
+    |> unsafe_validate_unique(:email, FoodReserve.Repo)
+    |> unique_constraint(:email)
+    |> validate_length(:password, min: 8, max: 72)
+    |> validate_confirmation(:password)
   end
 
   @doc """

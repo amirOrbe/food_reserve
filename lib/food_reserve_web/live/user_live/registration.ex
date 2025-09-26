@@ -9,33 +9,33 @@ defmodule FoodReserveWeb.UserLive.Registration do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <div class="mx-auto max-w-sm">
-        <div class="text-center">
-          <.header>
-            Register for an account
-            <:subtitle>
-              Already registered?
-              <.link navigate={~p"/users/log-in"} class="font-semibold text-brand hover:underline">
-                Log in
-              </.link>
-              to your account now.
-            </:subtitle>
-          </.header>
+        <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
+          <div class="text-center mb-6">
+            <.header>
+              Crear una cuenta
+              <:subtitle>
+                ¿Ya tienes una cuenta?
+                <.link navigate={~p"/users/log-in"} class="font-semibold text-orange-500 hover:underline">
+                  Inicia sesión
+                </.link>
+                ahora.
+              </:subtitle>
+            </.header>
+          </div>
+
+          <.form for={@form} id="registration_form" phx-submit="save" phx-change="validate">
+            <.input field={@form[:name]} type="text" label="Nombre Completo" required phx-mounted={JS.focus()} />
+            <.input field={@form[:email]} type="email" label="Correo Electrónico" required />
+            <.input field={@form[:phone_number]} type="tel" label="Número de Teléfono" required />
+            <.input field={@form[:password]} type="password" label="Contraseña" required />
+
+            <div class="pt-4">
+              <.button phx-disable-with="Creando cuenta..." class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-lg">
+                Crear mi cuenta
+              </.button>
+            </div>
+          </.form>
         </div>
-
-        <.form for={@form} id="registration_form" phx-submit="save" phx-change="validate">
-          <.input
-            field={@form[:email]}
-            type="email"
-            label="Email"
-            autocomplete="username"
-            required
-            phx-mounted={JS.focus()}
-          />
-
-          <.button phx-disable-with="Creating account..." class="btn btn-primary w-full">
-            Create an account
-          </.button>
-        </.form>
       </div>
     </Layouts.app>
     """
@@ -48,7 +48,7 @@ defmodule FoodReserveWeb.UserLive.Registration do
   end
 
   def mount(_params, _session, socket) do
-    changeset = Accounts.change_user_email(%User{}, %{}, validate_unique: false)
+    changeset = Accounts.change_user_registration(%User{}, %{})
 
     {:ok, assign_form(socket, changeset), temporary_assigns: [form: nil]}
   end
@@ -77,7 +77,7 @@ defmodule FoodReserveWeb.UserLive.Registration do
   end
 
   def handle_event("validate", %{"user" => user_params}, socket) do
-    changeset = Accounts.change_user_email(%User{}, user_params, validate_unique: false)
+    changeset = Accounts.change_user_registration(%User{}, user_params)
     {:noreply, assign_form(socket, Map.put(changeset, :action, :validate))}
   end
 
