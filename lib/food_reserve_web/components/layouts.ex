@@ -44,8 +44,8 @@ defmodule FoodReserveWeb.Layouts do
           </a>
         </div>
         <div class="flex items-center space-x-4">
-          <.link navigate={~p"/users/log-in"} class="text-gray-600 hover:text-gray-800">Log in</.link>
-          <.link navigate={~p"/users/register"} class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-lg">Register</.link>
+          <.link navigate={~p"/users/log-in"} class="text-gray-600 hover:text-gray-800">Iniciar Sesión</.link>
+          <.link navigate={~p"/users/register"} class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-lg">Registrarse</.link>
           <.theme_toggle />
         </div>
       </nav>

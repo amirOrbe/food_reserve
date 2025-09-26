@@ -8,15 +8,15 @@ defmodule FoodReserveWeb.HomeLive do
       <section class="bg-white">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
           <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight mb-4">
-            Your next favorite meal, <span class="text-orange-500">one click away.</span>
+            Tu próxima comida favorita, <span class="text-orange-500">a un clic de distancia.</span>
           </h1>
           <p class="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-            Discover and reserve from the best local restaurants. Order ahead and have your food ready when you arrive.
+            Descubre y reserva en los mejores restaurantes locales. Pide por adelantado y ten tu comida lista cuando llegues.
           </p>
           <div class="max-w-xl mx-auto">
             <div class="flex items-center bg-white rounded-full shadow-md p-2">
-              <input type="text" placeholder="Search for a dish or restaurant..." class="w-full bg-transparent border-none focus:ring-0 text-lg px-4" />
-              <.button variant="primary" class="rounded-full">Search</.button>
+              <input type="text" placeholder="Busca un plato o restaurante..." class="w-full bg-transparent border-none focus:ring-0 text-lg px-4" />
+              <.button variant="primary" class="rounded-full">Buscar</.button>
             </div>
           </div>
         </div>
@@ -24,7 +24,7 @@ defmodule FoodReserveWeb.HomeLive do
 
       <section class="py-16">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 class="text-3xl font-bold text-center text-gray-800 mb-10">Featured Restaurants</h2>
+          <h2 class="text-3xl font-bold text-center text-gray-800 mb-10">Restaurantes Destacados</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <!-- Example Restaurant Card -->
             <div class="bg-white rounded-2xl shadow-lg overflow-hidden transform hover:-translate-y-1 transition-transform duration-300">
