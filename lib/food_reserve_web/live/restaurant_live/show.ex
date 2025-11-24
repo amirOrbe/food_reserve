@@ -8,24 +8,24 @@ defmodule FoodReserveWeb.RestaurantLive.Show do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <.header>
-        Restaurant {@restaurant.id}
-        <:subtitle>This is a restaurant record from your database.</:subtitle>
+        {@restaurant.name}
+        <:subtitle>Información detallada de tu restaurante.</:subtitle>
         <:actions>
           <.button navigate={~p"/restaurants"}>
             <.icon name="hero-arrow-left" />
           </.button>
           <.button variant="primary" navigate={~p"/restaurants/#{@restaurant}/edit?return_to=show"}>
-            <.icon name="hero-pencil-square" /> Edit restaurant
+            <.icon name="hero-pencil-square" /> Editar restaurante
           </.button>
         </:actions>
       </.header>
 
       <.list>
-        <:item title="Name">{@restaurant.name}</:item>
-        <:item title="Description">{@restaurant.description}</:item>
-        <:item title="Address">{@restaurant.address}</:item>
-        <:item title="Phone number">{@restaurant.phone_number}</:item>
-        <:item title="Cuisine type">{@restaurant.cuisine_type}</:item>
+        <:item title="Nombre">{@restaurant.name}</:item>
+        <:item title="Descripción">{@restaurant.description}</:item>
+        <:item title="Dirección">{@restaurant.address}</:item>
+        <:item title="Teléfono">{@restaurant.phone_number}</:item>
+        <:item title="Tipo de Cocina">{@restaurant.cuisine_type}</:item>
       </.list>
     </Layouts.app>
     """
@@ -39,7 +39,7 @@ defmodule FoodReserveWeb.RestaurantLive.Show do
 
     {:ok,
      socket
-     |> assign(:page_title, "Show Restaurant")
+     |> assign(:page_title, "Ver Restaurante")
      |> assign(:restaurant, Restaurants.get_restaurant!(socket.assigns.current_scope, id))}
   end
 
@@ -57,7 +57,7 @@ defmodule FoodReserveWeb.RestaurantLive.Show do
       ) do
     {:noreply,
      socket
-     |> put_flash(:error, "The current restaurant was deleted.")
+     |> put_flash(:error, "El restaurante actual fue eliminado.")
      |> push_navigate(to: ~p"/restaurants")}
   end
 

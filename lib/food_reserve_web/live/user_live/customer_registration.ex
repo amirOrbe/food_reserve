@@ -32,12 +32,14 @@ defmodule FoodReserveWeb.UserLive.CustomerRegistration do
             <.input field={@form[:password]} type="password" label="Contraseña" required />
 
             <div class="pt-4">
-              <.button
+              <button
+                type="submit"
                 phx-disable-with="Creando cuenta..."
-                class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg"
+                style="background-color: #2563eb; color: white; padding: 12px 16px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; width: 100%;"
               >
                 Crear cuenta de cliente
-              </.button>
+              </button>
             </div>
           </.form>
 

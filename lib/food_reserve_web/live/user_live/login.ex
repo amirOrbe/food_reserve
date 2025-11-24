@@ -27,9 +27,13 @@ defmodule FoodReserveWeb.UserLive.Login do
             <.input field={@form[:password]} type="password" label="Contraseña" required />
 
             <div class="pt-4">
-              <.button class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-lg">
+              <button
+                type="submit"
+                class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-4 rounded-lg"
+                style="background-color: #ea580c; color: white; padding: 12px 16px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; width: 100%;"
+              >
                 Iniciar Sesión <span aria-hidden="true">→</span>
-              </.button>
+              </button>
             </div>
           </.form>
         </div>

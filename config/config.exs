@@ -24,6 +24,11 @@ config :food_reserve,
   ecto_repos: [FoodReserve.Repo],
   generators: [timestamp_type: :utc_datetime]
 
+# Configures Gettext
+config :food_reserve, FoodReserveWeb.Gettext,
+  default_locale: "es",
+  locales: ~w(en es)
+
 # Configures the endpoint
 config :food_reserve, FoodReserveWeb.Endpoint,
   url: [host: "localhost"],

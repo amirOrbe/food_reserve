@@ -61,12 +61,14 @@ defmodule FoodReserveWeb.UserLive.RestaurantOwnerRegistration do
             </div>
 
             <div class="pt-4">
-              <.button
+              <button
+                type="submit"
                 phx-disable-with="Creando cuenta..."
-                class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-lg"
+                class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-4 rounded-lg"
+                style="background-color: #ea580c; color: white; padding: 12px 16px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; width: 100%;"
               >
                 Crear cuenta de restaurante
-              </.button>
+              </button>
             </div>
           </.form>
 

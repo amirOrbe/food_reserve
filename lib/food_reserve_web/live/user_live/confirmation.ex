@@ -9,7 +9,7 @@ defmodule FoodReserveWeb.UserLive.Confirmation do
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <div class="mx-auto max-w-sm">
         <div class="text-center">
-          <.header>Welcome {@user.email}</.header>
+          <.header>Bienvenido {@user.email}</.header>
         </div>
 
         <.form
@@ -25,13 +25,13 @@ defmodule FoodReserveWeb.UserLive.Confirmation do
           <.button
             name={@form[:remember_me].name}
             value="true"
-            phx-disable-with="Confirming..."
+            phx-disable-with="Confirmando..."
             class="btn btn-primary w-full"
           >
-            Confirm and stay logged in
+            Confirmar y mantener sesión iniciada
           </.button>
-          <.button phx-disable-with="Confirming..." class="btn btn-primary btn-soft w-full mt-2">
-            Confirm and log in only this time
+          <.button phx-disable-with="Confirmando..." class="btn btn-primary btn-soft w-full mt-2">
+            Confirmar e iniciar sesión solo esta vez
           </.button>
         </.form>
 
@@ -46,26 +46,29 @@ defmodule FoodReserveWeb.UserLive.Confirmation do
         >
           <input type="hidden" name={@form[:token].name} value={@form[:token].value} />
           <%= if @current_scope do %>
-            <.button phx-disable-with="Logging in..." class="btn btn-primary w-full">
-              Log in
+            <.button phx-disable-with="Iniciando sesión..." class="btn btn-primary w-full">
+              Iniciar Sesión
             </.button>
           <% else %>
             <.button
               name={@form[:remember_me].name}
               value="true"
-              phx-disable-with="Logging in..."
+              phx-disable-with="Iniciando sesión..."
               class="btn btn-primary w-full"
             >
-              Keep me logged in on this device
+              Mantenerme conectado en este dispositivo
             </.button>
-            <.button phx-disable-with="Logging in..." class="btn btn-primary btn-soft w-full mt-2">
-              Log me in only this time
+            <.button
+              phx-disable-with="Iniciando sesión..."
+              class="btn btn-primary btn-soft w-full mt-2"
+            >
+              Iniciar sesión solo esta vez
             </.button>
           <% end %>
         </.form>
 
         <p :if={!@user.confirmed_at} class="alert alert-outline mt-8">
-          Tip: If you prefer passwords, you can enable them in the user settings.
+          Consejo: Si prefieres contraseñas, puedes habilitarlas en la configuración de usuario.
         </p>
       </div>
     </Layouts.app>
@@ -82,7 +85,7 @@ defmodule FoodReserveWeb.UserLive.Confirmation do
     else
       {:ok,
        socket
-       |> put_flash(:error, "Magic link is invalid or it has expired.")
+       |> put_flash(:error, "El enlace mágico es inválido o ha expirado.")
        |> push_navigate(to: ~p"/users/log-in")}
     end
   end

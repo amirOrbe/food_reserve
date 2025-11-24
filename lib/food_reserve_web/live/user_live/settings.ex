@@ -33,7 +33,12 @@ defmodule FoodReserveWeb.UserLive.Settings do
               required
             />
             <div class="pt-4">
-              <.button variant="primary" phx-disable-with="Cambiando...">Cambiar Correo</.button>
+              <.button
+                class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200"
+                phx-disable-with="Cambiando..."
+              >
+                Cambiar Correo
+              </.button>
             </div>
           </.form>
         </div>
@@ -68,7 +73,10 @@ defmodule FoodReserveWeb.UserLive.Settings do
               label="Confirmar Nueva Contraseña"
             />
             <div class="pt-4">
-              <.button variant="primary" phx-disable-with="Guardando...">
+              <.button
+                class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200"
+                phx-disable-with="Guardando..."
+              >
                 Guardar Contraseña
               </.button>
             </div>
@@ -84,10 +92,10 @@ defmodule FoodReserveWeb.UserLive.Settings do
     socket =
       case Accounts.update_user_email(socket.assigns.current_scope.user, token) do
         {:ok, _user} ->
-          put_flash(socket, :info, "Email changed successfully.")
+          put_flash(socket, :info, "Correo electrónico cambiado exitosamente.")
 
         {:error, _} ->
-          put_flash(socket, :error, "Email change link is invalid or it has expired.")
+          put_flash(socket, :error, "El enlace de cambio de correo es inválido o ha expirado.")
       end
 
     {:ok, push_navigate(socket, to: ~p"/users/settings")}
@@ -134,7 +142,7 @@ defmodule FoodReserveWeb.UserLive.Settings do
           &url(~p"/users/settings/confirm-email/#{&1}")
         )
 
-        info = "A link to confirm your email change has been sent to the new address."
+        info = "Se ha enviado un enlace para confirmar el cambio de correo a la nueva dirección."
         {:noreply, socket |> put_flash(:info, info)}
 
       changeset ->

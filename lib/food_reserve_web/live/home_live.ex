@@ -41,15 +41,15 @@ defmodule FoodReserveWeb.HomeLive do
                   class="w-full h-48 object-cover"
                 />
                 <div class="p-6">
-                  <h3 class="text-xl font-bold mb-2">The Cozy Italian</h3>
-                  <p class="text-gray-600 mb-4">Italian Cuisine</p>
+                  <h3 class="text-xl font-bold mb-2">La Italiana Acogedora</h3>
+                  <p class="text-gray-600 mb-4">Cocina Italiana</p>
                   <div class="flex items-center">
                     <.icon name="hero-star-solid" class="w-5 h-5 text-yellow-400" />
                     <.icon name="hero-star-solid" class="w-5 h-5 text-yellow-400" />
                     <.icon name="hero-star-solid" class="w-5 h-5 text-yellow-400" />
                     <.icon name="hero-star-solid" class="w-5 h-5 text-yellow-400" />
                     <.icon name="hero-star" class="w-5 h-5 text-yellow-400" />
-                    <span class="ml-2 text-gray-500">4.0 (124 reviews)</span>
+                    <span class="ml-2 text-gray-500">4.0 (124 reseñas)</span>
                   </div>
                 </div>
               </div>
@@ -64,6 +64,6 @@ defmodule FoodReserveWeb.HomeLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, :page_title, "Home")}
+    {:ok, assign(socket, :page_title, "Inicio")}
   end
 end

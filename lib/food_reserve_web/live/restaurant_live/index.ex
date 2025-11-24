@@ -8,10 +8,10 @@ defmodule FoodReserveWeb.RestaurantLive.Index do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <.header>
-        Listing Restaurants
+        Mis Restaurantes
         <:actions>
           <.button variant="primary" navigate={~p"/restaurants/new"}>
-            <.icon name="hero-plus" /> New Restaurant
+            <.icon name="hero-plus" /> Nuevo Restaurante
           </.button>
         </:actions>
       </.header>
@@ -21,23 +21,23 @@ defmodule FoodReserveWeb.RestaurantLive.Index do
         rows={@streams.restaurants}
         row_click={fn {_id, restaurant} -> JS.navigate(~p"/restaurants/#{restaurant}") end}
       >
-        <:col :let={{_id, restaurant}} label="Name">{restaurant.name}</:col>
-        <:col :let={{_id, restaurant}} label="Description">{restaurant.description}</:col>
-        <:col :let={{_id, restaurant}} label="Address">{restaurant.address}</:col>
-        <:col :let={{_id, restaurant}} label="Phone number">{restaurant.phone_number}</:col>
-        <:col :let={{_id, restaurant}} label="Cuisine type">{restaurant.cuisine_type}</:col>
+        <:col :let={{_id, restaurant}} label="Nombre">{restaurant.name}</:col>
+        <:col :let={{_id, restaurant}} label="Descripción">{restaurant.description}</:col>
+        <:col :let={{_id, restaurant}} label="Dirección">{restaurant.address}</:col>
+        <:col :let={{_id, restaurant}} label="Teléfono">{restaurant.phone_number}</:col>
+        <:col :let={{_id, restaurant}} label="Tipo de Cocina">{restaurant.cuisine_type}</:col>
         <:action :let={{_id, restaurant}}>
           <div class="sr-only">
-            <.link navigate={~p"/restaurants/#{restaurant}"}>Show</.link>
+            <.link navigate={~p"/restaurants/#{restaurant}"}>Ver</.link>
           </div>
-          <.link navigate={~p"/restaurants/#{restaurant}/edit"}>Edit</.link>
+          <.link navigate={~p"/restaurants/#{restaurant}/edit"}>Editar</.link>
         </:action>
         <:action :let={{id, restaurant}}>
           <.link
             phx-click={JS.push("delete", value: %{id: restaurant.id}) |> hide("##{id}")}
-            data-confirm="Are you sure?"
+            data-confirm="¿Estás seguro?"
           >
-            Delete
+            Eliminar
           </.link>
         </:action>
       </.table>
@@ -55,7 +55,7 @@ defmodule FoodReserveWeb.RestaurantLive.Index do
 
     {:ok,
      socket
-     |> assign(:page_title, "Listing Restaurants")
+     |> assign(:page_title, "Mis Restaurantes")
      |> stream(:restaurants, Restaurants.list_restaurants(scope))}
   end
 

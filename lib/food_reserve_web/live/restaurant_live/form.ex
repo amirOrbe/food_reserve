@@ -10,18 +10,18 @@ defmodule FoodReserveWeb.RestaurantLive.Form do
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <.header>
         {@page_title}
-        <:subtitle>Use this form to manage restaurant records in your database.</:subtitle>
+        <:subtitle>Usa este formulario para gestionar la información de tu restaurante.</:subtitle>
       </.header>
 
       <.form for={@form} id="restaurant-form" phx-change="validate" phx-submit="save">
-        <.input field={@form[:name]} type="text" label="Name" />
-        <.input field={@form[:description]} type="textarea" label="Description" />
-        <.input field={@form[:address]} type="text" label="Address" />
-        <.input field={@form[:phone_number]} type="text" label="Phone number" />
-        <.input field={@form[:cuisine_type]} type="text" label="Cuisine type" />
+        <.input field={@form[:name]} type="text" label="Nombre" />
+        <.input field={@form[:description]} type="textarea" label="Descripción" />
+        <.input field={@form[:address]} type="text" label="Dirección" />
+        <.input field={@form[:phone_number]} type="text" label="Número de Teléfono" />
+        <.input field={@form[:cuisine_type]} type="text" label="Tipo de Cocina" />
         <footer>
-          <.button phx-disable-with="Saving..." variant="primary">Save Restaurant</.button>
-          <.button navigate={return_path(@current_scope, @return_to, @restaurant)}>Cancel</.button>
+          <.button phx-disable-with="Guardando..." variant="primary">Guardar Restaurante</.button>
+          <.button navigate={return_path(@current_scope, @return_to, @restaurant)}>Cancelar</.button>
         </footer>
       </.form>
     </Layouts.app>
@@ -43,7 +43,7 @@ defmodule FoodReserveWeb.RestaurantLive.Form do
     restaurant = Restaurants.get_restaurant!(socket.assigns.current_scope, id)
 
     socket
-    |> assign(:page_title, "Edit Restaurant")
+    |> assign(:page_title, "Editar Restaurante")
     |> assign(:restaurant, restaurant)
     |> assign(
       :form,
@@ -55,7 +55,7 @@ defmodule FoodReserveWeb.RestaurantLive.Form do
     restaurant = %Restaurant{user_id: socket.assigns.current_scope.user.id}
 
     socket
-    |> assign(:page_title, "New Restaurant")
+    |> assign(:page_title, "Nuevo Restaurante")
     |> assign(:restaurant, restaurant)
     |> assign(
       :form,
@@ -88,7 +88,7 @@ defmodule FoodReserveWeb.RestaurantLive.Form do
       {:ok, restaurant} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Restaurant updated successfully")
+         |> put_flash(:info, "Restaurante actualizado exitosamente")
          |> push_navigate(
            to: return_path(socket.assigns.current_scope, socket.assigns.return_to, restaurant)
          )}
@@ -103,7 +103,7 @@ defmodule FoodReserveWeb.RestaurantLive.Form do
       {:ok, restaurant} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Restaurant created successfully")
+         |> put_flash(:info, "Restaurante creado exitosamente")
          |> push_navigate(
            to: return_path(socket.assigns.current_scope, socket.assigns.return_to, restaurant)
          )}

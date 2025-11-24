@@ -39,7 +39,7 @@ defmodule FoodReserve.Accounts.User do
       changeset
       |> validate_required([:email])
       |> validate_format(:email, ~r/^[^@,;\s]+@[^@,;\s]+$/,
-        message: "must have the @ sign and no spaces"
+        message: "debe tener el símbolo @ y no espacios"
       )
       |> validate_length(:email, max: 160)
 
@@ -72,7 +72,7 @@ defmodule FoodReserve.Accounts.User do
       message: "debe ser 'customer' o 'restaurant_owner'"
     )
     |> validate_format(:email, ~r/^[^@,;\s]+@[^@,;\s]+$/,
-      message: "must have the @ sign and no spaces"
+      message: "debe tener el símbolo @ y no espacios"
     )
     |> validate_length(:email, max: 160)
     |> unsafe_validate_unique(:email, FoodReserve.Repo)
