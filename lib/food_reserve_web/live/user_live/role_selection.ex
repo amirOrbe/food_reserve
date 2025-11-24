@@ -15,7 +15,7 @@ defmodule FoodReserveWeb.UserLive.RoleSelection do
           </div>
         </div>
 
-        <div class="relative max-w-6xl mx-auto px-6 py-16">
+        <div class="relative max-w-4xl mx-auto px-6 py-16">
           
     <!-- Header -->
           <div class="text-center mb-20">
@@ -33,7 +33,7 @@ defmodule FoodReserveWeb.UserLive.RoleSelection do
           </div>
           
     <!-- Options -->
-          <div class="grid lg:grid-cols-2 gap-8 mb-16">
+          <div class="grid md:grid-cols-2 gap-6 mb-12 max-w-3xl mx-auto">
             
     <!-- Cliente -->
             <div
@@ -41,7 +41,7 @@ defmodule FoodReserveWeb.UserLive.RoleSelection do
               phx-click="select_role"
               phx-value-role="customer"
             >
-              <div class="relative bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-100">
+              <div class="relative bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100">
                 
     <!-- Background gradient on hover -->
                 <div class="absolute inset-0 bg-gradient-to-br from-blue-50 to-blue-100 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
@@ -50,7 +50,7 @@ defmodule FoodReserveWeb.UserLive.RoleSelection do
     <!-- Content -->
                 <div class="relative z-10">
                   <!-- Icon -->
-                  <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl mb-6 shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300">
+                  <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl mb-4 shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300">
                     <svg
                       class="w-10 h-10 text-white"
                       fill="none"
@@ -126,7 +126,7 @@ defmodule FoodReserveWeb.UserLive.RoleSelection do
               phx-click="select_role"
               phx-value-role="restaurant_owner"
             >
-              <div class="relative bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-100">
+              <div class="relative bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100">
                 
     <!-- Background gradient on hover -->
                 <div class="absolute inset-0 bg-gradient-to-br from-orange-50 to-orange-100 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
@@ -135,7 +135,7 @@ defmodule FoodReserveWeb.UserLive.RoleSelection do
     <!-- Content -->
                 <div class="relative z-10">
                   <!-- Icon -->
-                  <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl mb-6 shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300">
+                  <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl mb-4 shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300">
                     <svg
                       class="w-10 h-10 text-white"
                       fill="none"
