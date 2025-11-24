@@ -16,7 +16,11 @@ defmodule FoodReserveWeb.HomeLive do
             </p>
             <div class="max-w-xl mx-auto">
               <div class="flex items-center bg-white rounded-full shadow-md p-2">
-                <input type="text" placeholder="Busca un plato o restaurante..." class="w-full bg-transparent border-none focus:ring-0 text-lg px-4" />
+                <input
+                  type="text"
+                  placeholder="Busca un plato o restaurante..."
+                  class="w-full bg-transparent border-none focus:ring-0 text-lg px-4"
+                />
                 <.button variant="primary" class="rounded-full">Buscar</.button>
               </div>
             </div>
@@ -25,11 +29,17 @@ defmodule FoodReserveWeb.HomeLive do
 
         <section class="py-16">
           <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 class="text-3xl font-bold text-center text-gray-800 mb-10">Restaurantes Destacados</h2>
+            <h2 class="text-3xl font-bold text-center text-gray-800 mb-10">
+              Restaurantes Destacados
+            </h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               <!-- Example Restaurant Card -->
               <div class="bg-white rounded-2xl shadow-lg overflow-hidden transform hover:-translate-y-1 transition-transform duration-300">
-                <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80" alt="The Cozy Italian" class="w-full h-48 object-cover"/>
+                <img
+                  src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80"
+                  alt="The Cozy Italian"
+                  class="w-full h-48 object-cover"
+                />
                 <div class="p-6">
                   <h3 class="text-xl font-bold mb-2">The Cozy Italian</h3>
                   <p class="text-gray-600 mb-4">Italian Cuisine</p>

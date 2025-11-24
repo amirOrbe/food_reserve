@@ -14,7 +14,11 @@ defmodule FoodReserve.AccountsFixtures do
 
   def valid_user_attributes(attrs \\ %{}) do
     Enum.into(attrs, %{
-      email: unique_user_email()
+      name: "Test User",
+      email: unique_user_email(),
+      phone_number: "+1234567890",
+      password: valid_user_password(),
+      role: "customer"
     })
   end
 
@@ -27,16 +31,41 @@ defmodule FoodReserve.AccountsFixtures do
     user
   end
 
+  def unconfirmed_user_without_password_fixture(attrs \\ %{}) do
+    # Create user without password for magic link tests
+    attrs =
+      attrs
+      |> Enum.into(%{
+        name: "Test User",
+        email: unique_user_email(),
+        phone_number: "+1234567890",
+        role: "customer"
+      })
+
+    %FoodReserve.Accounts.User{}
+    |> Ecto.Changeset.cast(attrs, [:name, :email, :phone_number, :role])
+    |> Ecto.Changeset.validate_required([:name, :email, :phone_number, :role])
+    |> Ecto.Changeset.validate_inclusion(:role, ~w(customer restaurant_owner),
+      message: "debe ser 'customer' o 'restaurant_owner'"
+    )
+    |> Ecto.Changeset.validate_format(:email, ~r/^[^@,;\s]+@[^@,;\s]+$/,
+      message: "must have the @ sign and no spaces"
+    )
+    |> Ecto.Changeset.validate_length(:email, max: 160)
+    |> Ecto.Changeset.unsafe_validate_unique(:email, FoodReserve.Repo)
+    |> Ecto.Changeset.unique_constraint(:email)
+    |> FoodReserve.Repo.insert!()
+  end
+
   def user_fixture(attrs \\ %{}) do
     user = unconfirmed_user_fixture(attrs)
 
-    token =
-      extract_user_token(fn url ->
-        Accounts.deliver_login_instructions(user, url)
-      end)
-
-    {:ok, {user, _expired_tokens}} =
-      Accounts.login_user_by_magic_link(token)
+    # Directly confirm the user instead of using magic link
+    # since we now create users with passwords
+    {:ok, user} =
+      user
+      |> FoodReserve.Accounts.User.confirm_changeset()
+      |> FoodReserve.Repo.update()
 
     user
   end

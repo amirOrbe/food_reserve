@@ -56,7 +56,7 @@ defmodule FoodReserveWeb.UserAuth do
     conn
     |> renew_session(nil)
     |> delete_resp_cookie(@remember_me_cookie)
-    |> redirect(to: ~p"/")
+    |> redirect(to: ~p"/users/register")
   end
 
   @doc """
@@ -120,7 +120,10 @@ defmodule FoodReserveWeb.UserAuth do
 
   # Do not renew session if the user is already logged in
   # to prevent CSRF errors or data being lost in tabs that are still open
-  defp renew_session(conn, user) when conn.assigns.current_scope.user.id == user.id do
+  defp renew_session(conn, user)
+       when not is_nil(user) and
+              not is_nil(conn.assigns.current_scope.user) and
+              conn.assigns.current_scope.user.id == user.id do
     conn
   end
 
@@ -225,6 +228,25 @@ defmodule FoodReserveWeb.UserAuth do
         socket
         |> Phoenix.LiveView.put_flash(:error, "You must log in to access this page.")
         |> Phoenix.LiveView.redirect(to: ~p"/users/log-in")
+
+      {:halt, socket}
+    end
+  end
+
+  def on_mount(:require_restaurant_owner, _params, session, socket) do
+    socket = mount_current_scope(socket, session)
+
+    if socket.assigns.current_scope && socket.assigns.current_scope.user &&
+         FoodReserve.Accounts.User.restaurant_owner?(socket.assigns.current_scope.user) do
+      {:cont, socket}
+    else
+      socket =
+        socket
+        |> Phoenix.LiveView.put_flash(
+          :error,
+          "Solo los dueños de restaurantes pueden acceder a esta página."
+        )
+        |> Phoenix.LiveView.redirect(to: ~p"/")
 
       {:halt, socket}
     end

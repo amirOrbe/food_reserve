@@ -9,7 +9,13 @@ defmodule FoodReserve.RestaurantsTest do
     import FoodReserve.AccountsFixtures, only: [user_scope_fixture: 0]
     import FoodReserve.RestaurantsFixtures
 
-    @invalid_attrs %{name: nil, address: nil, description: nil, phone_number: nil, cuisine_type: nil}
+    @invalid_attrs %{
+      "name" => nil,
+      "address" => nil,
+      "description" => nil,
+      "phone_number" => nil,
+      "cuisine_type" => nil
+    }
 
     test "list_restaurants/1 returns all scoped restaurants" do
       scope = user_scope_fixture()
@@ -25,11 +31,21 @@ defmodule FoodReserve.RestaurantsTest do
       restaurant = restaurant_fixture(scope)
       other_scope = user_scope_fixture()
       assert Restaurants.get_restaurant!(scope, restaurant.id) == restaurant
-      assert_raise Ecto.NoResultsError, fn -> Restaurants.get_restaurant!(other_scope, restaurant.id) end
+
+      assert_raise Ecto.NoResultsError, fn ->
+        Restaurants.get_restaurant!(other_scope, restaurant.id)
+      end
     end
 
     test "create_restaurant/2 with valid data creates a restaurant" do
-      valid_attrs = %{name: "some name", address: "some address", description: "some description", phone_number: "some phone_number", cuisine_type: "some cuisine_type"}
+      valid_attrs = %{
+        "name" => "some name",
+        "address" => "some address",
+        "description" => "some description",
+        "phone_number" => "some phone_number",
+        "cuisine_type" => "some cuisine_type"
+      }
+
       scope = user_scope_fixture()
 
       assert {:ok, %Restaurant{} = restaurant} = Restaurants.create_restaurant(scope, valid_attrs)
@@ -49,9 +65,18 @@ defmodule FoodReserve.RestaurantsTest do
     test "update_restaurant/3 with valid data updates the restaurant" do
       scope = user_scope_fixture()
       restaurant = restaurant_fixture(scope)
-      update_attrs = %{name: "some updated name", address: "some updated address", description: "some updated description", phone_number: "some updated phone_number", cuisine_type: "some updated cuisine_type"}
 
-      assert {:ok, %Restaurant{} = restaurant} = Restaurants.update_restaurant(scope, restaurant, update_attrs)
+      update_attrs = %{
+        "name" => "some updated name",
+        "address" => "some updated address",
+        "description" => "some updated description",
+        "phone_number" => "some updated phone_number",
+        "cuisine_type" => "some updated cuisine_type"
+      }
+
+      assert {:ok, %Restaurant{} = restaurant} =
+               Restaurants.update_restaurant(scope, restaurant, update_attrs)
+
       assert restaurant.name == "some updated name"
       assert restaurant.address == "some updated address"
       assert restaurant.description == "some updated description"
@@ -72,7 +97,10 @@ defmodule FoodReserve.RestaurantsTest do
     test "update_restaurant/3 with invalid data returns error changeset" do
       scope = user_scope_fixture()
       restaurant = restaurant_fixture(scope)
-      assert {:error, %Ecto.Changeset{}} = Restaurants.update_restaurant(scope, restaurant, @invalid_attrs)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Restaurants.update_restaurant(scope, restaurant, @invalid_attrs)
+
       assert restaurant == Restaurants.get_restaurant!(scope, restaurant.id)
     end
 
@@ -80,7 +108,10 @@ defmodule FoodReserve.RestaurantsTest do
       scope = user_scope_fixture()
       restaurant = restaurant_fixture(scope)
       assert {:ok, %Restaurant{}} = Restaurants.delete_restaurant(scope, restaurant)
-      assert_raise Ecto.NoResultsError, fn -> Restaurants.get_restaurant!(scope, restaurant.id) end
+
+      assert_raise Ecto.NoResultsError, fn ->
+        Restaurants.get_restaurant!(scope, restaurant.id)
+      end
     end
 
     test "delete_restaurant/2 with invalid scope raises" do

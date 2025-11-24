@@ -16,19 +16,29 @@ defmodule FoodReserveWeb.UserLive.Settings do
             <:subtitle>Administra tu correo electrónico y contraseña.</:subtitle>
           </.header>
         </div>
-
-        <!-- Change Email Card -->
+        
+    <!-- Change Email Card -->
         <div class="bg-white p-8 rounded-2xl shadow-lg">
           <h2 class="text-xl font-semibold mb-4">Cambiar Correo Electrónico</h2>
-          <.form for={@email_form} id="email_form" phx-submit="update_email" phx-change="validate_email">
-            <.input field={@email_form[:email]} type="email" label="Nuevo Correo Electrónico" required />
+          <.form
+            for={@email_form}
+            id="email_form"
+            phx-submit="update_email"
+            phx-change="validate_email"
+          >
+            <.input
+              field={@email_form[:email]}
+              type="email"
+              label="Nuevo Correo Electrónico"
+              required
+            />
             <div class="pt-4">
               <.button variant="primary" phx-disable-with="Cambiando...">Cambiar Correo</.button>
             </div>
           </.form>
         </div>
-
-        <!-- Change Password Card -->
+        
+    <!-- Change Password Card -->
         <div class="bg-white p-8 rounded-2xl shadow-lg">
           <h2 class="text-xl font-semibold mb-4">Cambiar Contraseña</h2>
           <.form
@@ -46,8 +56,17 @@ defmodule FoodReserveWeb.UserLive.Settings do
               id="hidden_user_email"
               value={@current_email}
             />
-            <.input field={@password_form[:password]} type="password" label="Nueva Contraseña" required />
-            <.input field={@password_form[:password_confirmation]} type="password" label="Confirmar Nueva Contraseña" />
+            <.input
+              field={@password_form[:password]}
+              type="password"
+              label="Nueva Contraseña"
+              required
+            />
+            <.input
+              field={@password_form[:password_confirmation]}
+              type="password"
+              label="Confirmar Nueva Contraseña"
+            />
             <div class="pt-4">
               <.button variant="primary" phx-disable-with="Guardando...">
                 Guardar Contraseña

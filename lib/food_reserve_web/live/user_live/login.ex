@@ -11,7 +11,10 @@ defmodule FoodReserveWeb.UserLive.Login do
               Iniciar Sesión
               <:subtitle>
                 ¿No tienes una cuenta?
-                <.link navigate={~p"/users/register"} class="font-semibold text-orange-500 hover:underline">
+                <.link
+                  navigate={~p"/users/register"}
+                  class="font-semibold text-orange-500 hover:underline"
+                >
                   Regístrate
                 </.link>
                 ahora.

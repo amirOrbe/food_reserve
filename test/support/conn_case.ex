@@ -56,6 +56,18 @@ defmodule FoodReserveWeb.ConnCase do
     %{conn: log_in_user(conn, user, opts), user: user, scope: scope}
   end
 
+  def register_and_log_in_restaurant_owner(%{conn: conn} = context) do
+    user = FoodReserve.AccountsFixtures.user_fixture(%{role: "restaurant_owner"})
+    scope = FoodReserve.Accounts.Scope.for_user(user)
+
+    opts =
+      context
+      |> Map.take([:token_authenticated_at])
+      |> Enum.into([])
+
+    %{conn: log_in_user(conn, user, opts), user: user, scope: scope}
+  end
+
   @doc """
   Logs the given `user` into the `conn`.
 

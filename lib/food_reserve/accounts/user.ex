@@ -2,10 +2,13 @@ defmodule FoodReserve.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @valid_roles ~w(customer restaurant_owner)
+
   schema "users" do
     field :name, :string
     field :email, :string
     field :phone_number, :string
+    field :role, :string, default: "customer"
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :confirmed_at, :utc_datetime
@@ -63,8 +66,11 @@ defmodule FoodReserve.Accounts.User do
   """
   def registration_changeset(user, attrs) do
     user
-    |> cast(attrs, [:name, :email, :phone_number, :password])
-    |> validate_required([:name, :email, :phone_number, :password])
+    |> cast(attrs, [:name, :email, :phone_number, :password, :role])
+    |> validate_required([:name, :email, :phone_number, :password, :role])
+    |> validate_inclusion(:role, @valid_roles,
+      message: "debe ser 'customer' o 'restaurant_owner'"
+    )
     |> validate_format(:email, ~r/^[^@,;\s]+@[^@,;\s]+$/,
       message: "must have the @ sign and no spaces"
     )
@@ -73,6 +79,7 @@ defmodule FoodReserve.Accounts.User do
     |> unique_constraint(:email)
     |> validate_length(:password, min: 8, max: 72)
     |> validate_confirmation(:password)
+    |> maybe_hash_password([])
   end
 
   @doc """
@@ -148,4 +155,16 @@ defmodule FoodReserve.Accounts.User do
     Bcrypt.no_user_verify()
     false
   end
+
+  @doc """
+  Returns true if the user is a restaurant owner.
+  """
+  def restaurant_owner?(%__MODULE__{role: "restaurant_owner"}), do: true
+  def restaurant_owner?(_), do: false
+
+  @doc """
+  Returns true if the user is a customer.
+  """
+  def customer?(%__MODULE__{role: "customer"}), do: true
+  def customer?(_), do: false
 end

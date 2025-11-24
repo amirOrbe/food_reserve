@@ -44,6 +44,13 @@ defmodule FoodReserveWeb.Router do
   scope "/", FoodReserveWeb do
     pipe_through [:browser, :require_authenticated_user]
 
+    # Routes only for restaurant owners (must come first for specificity)
+    live_session :restaurant_owners_only,
+      on_mount: [{FoodReserveWeb.UserAuth, :require_restaurant_owner}] do
+      live "/restaurants/new", RestaurantLive.Form, :new
+      live "/restaurants/:id/edit", RestaurantLive.Form, :edit
+    end
+
     live_session :require_authenticated_user,
       on_mount: [{FoodReserveWeb.UserAuth, :require_authenticated}] do
       live "/", HomeLive, :index
@@ -51,10 +58,9 @@ defmodule FoodReserveWeb.Router do
       live "/users/settings", UserLive.Settings, :edit
       live "/users/settings/confirm-email/:token", UserLive.Settings, :confirm_email
 
+      # Routes accessible to all authenticated users (customers can view restaurants)
       live "/restaurants", RestaurantLive.Index, :index
-      live "/restaurants/new", RestaurantLive.Form, :new
       live "/restaurants/:id", RestaurantLive.Show, :show
-      live "/restaurants/:id/edit", RestaurantLive.Form, :edit
     end
 
     post "/users/update-password", UserSessionController, :update_password
@@ -65,7 +71,14 @@ defmodule FoodReserveWeb.Router do
 
     live_session :current_user,
       on_mount: [{FoodReserveWeb.UserAuth, :mount_current_scope}] do
-      live "/users/register", UserLive.Registration, :new
+      # Nueva página de selección de rol
+      live "/users/register", UserLive.RoleSelection, :new
+
+      # Formularios de registro específicos por rol
+      live "/users/register/customer", UserLive.CustomerRegistration, :new
+      live "/users/register/restaurant-owner", UserLive.RestaurantOwnerRegistration, :new
+
+      # Login y confirmación
       live "/users/log-in", UserLive.Login, :new
       live "/users/log-in/:token", UserLive.Confirmation, :new
     end

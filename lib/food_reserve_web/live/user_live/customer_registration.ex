@@ -1,4 +1,4 @@
-defmodule FoodReserveWeb.UserLive.Registration do
+defmodule FoodReserveWeb.UserLive.CustomerRegistration do
   use FoodReserveWeb, :live_view
 
   alias FoodReserve.Accounts
@@ -12,21 +12,14 @@ defmodule FoodReserveWeb.UserLive.Registration do
         <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
           <div class="text-center mb-6">
             <.header>
-              Crear una cuenta
+              Registro de Cliente
               <:subtitle>
-                ¿Ya tienes una cuenta?
-                <.link
-                  navigate={~p"/users/log-in"}
-                  class="font-semibold text-orange-500 hover:underline"
-                >
-                  Inicia sesión
-                </.link>
-                ahora.
+                Crea tu cuenta para explorar restaurantes
               </:subtitle>
             </.header>
           </div>
 
-          <.form for={@form} id="registration_form" phx-submit="save" phx-change="validate">
+          <.form for={@form} id="customer_registration_form" phx-submit="save" phx-change="validate">
             <.input
               field={@form[:name]}
               type="text"
@@ -36,30 +29,28 @@ defmodule FoodReserveWeb.UserLive.Registration do
             />
             <.input field={@form[:email]} type="email" label="Correo Electrónico" required />
             <.input field={@form[:phone_number]} type="tel" label="Número de Teléfono" required />
-
-            <.input
-              field={@form[:role]}
-              type="select"
-              label="Tipo de Usuario"
-              options={[
-                {"Cliente - Puedo consultar y hacer reservas en restaurantes", "customer"},
-                {"Dueño de Restaurante - Puedo registrar y administrar mi restaurante",
-                 "restaurant_owner"}
-              ]}
-              required
-            />
-
             <.input field={@form[:password]} type="password" label="Contraseña" required />
 
             <div class="pt-4">
               <.button
                 phx-disable-with="Creando cuenta..."
-                class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-lg"
+                class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg"
               >
-                Crear mi cuenta
+                Crear cuenta de cliente
               </.button>
             </div>
           </.form>
+
+          <div class="text-center mt-4">
+            <p class="text-sm text-gray-500">
+              <.link
+                navigate={~p"/users/register"}
+                class="font-semibold text-orange-500 hover:underline"
+              >
+                ← Volver a selección de tipo
+              </.link>
+            </p>
+          </div>
         </div>
       </div>
     </Layouts.app>
@@ -73,13 +64,14 @@ defmodule FoodReserveWeb.UserLive.Registration do
   end
 
   def mount(_params, _session, socket) do
-    changeset = Accounts.change_user_registration(%User{}, %{})
-
+    changeset = Accounts.change_user_registration(%User{}, %{"role" => "customer"})
     {:ok, assign_form(socket, changeset), temporary_assigns: [form: nil]}
   end
 
   @impl true
   def handle_event("save", %{"user" => user_params}, socket) do
+    user_params = Map.put(user_params, "role", "customer")
+
     case Accounts.register_user(user_params) do
       {:ok, user} ->
         {:ok, _} =
@@ -92,7 +84,7 @@ defmodule FoodReserveWeb.UserLive.Registration do
          socket
          |> put_flash(
            :info,
-           "An email was sent to #{user.email}, please access it to confirm your account."
+           "¡Cuenta creada exitosamente! Se ha enviado un email a #{user.email} para confirmar tu cuenta."
          )
          |> push_navigate(to: ~p"/users/log-in")}
 
@@ -102,6 +94,7 @@ defmodule FoodReserveWeb.UserLive.Registration do
   end
 
   def handle_event("validate", %{"user" => user_params}, socket) do
+    user_params = Map.put(user_params, "role", "customer")
     changeset = Accounts.change_user_registration(%User{}, user_params)
     {:noreply, assign_form(socket, Map.put(changeset, :action, :validate))}
   end

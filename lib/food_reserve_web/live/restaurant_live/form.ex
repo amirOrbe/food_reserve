@@ -45,7 +45,10 @@ defmodule FoodReserveWeb.RestaurantLive.Form do
     socket
     |> assign(:page_title, "Edit Restaurant")
     |> assign(:restaurant, restaurant)
-    |> assign(:form, to_form(Restaurants.change_restaurant(socket.assigns.current_scope, restaurant)))
+    |> assign(
+      :form,
+      to_form(Restaurants.change_restaurant(socket.assigns.current_scope, restaurant))
+    )
   end
 
   defp apply_action(socket, :new, _params) do
@@ -54,12 +57,21 @@ defmodule FoodReserveWeb.RestaurantLive.Form do
     socket
     |> assign(:page_title, "New Restaurant")
     |> assign(:restaurant, restaurant)
-    |> assign(:form, to_form(Restaurants.change_restaurant(socket.assigns.current_scope, restaurant)))
+    |> assign(
+      :form,
+      to_form(Restaurants.change_restaurant(socket.assigns.current_scope, restaurant))
+    )
   end
 
   @impl true
   def handle_event("validate", %{"restaurant" => restaurant_params}, socket) do
-    changeset = Restaurants.change_restaurant(socket.assigns.current_scope, socket.assigns.restaurant, restaurant_params)
+    changeset =
+      Restaurants.change_restaurant(
+        socket.assigns.current_scope,
+        socket.assigns.restaurant,
+        restaurant_params
+      )
+
     {:noreply, assign(socket, form: to_form(changeset, action: :validate))}
   end
 
@@ -68,7 +80,11 @@ defmodule FoodReserveWeb.RestaurantLive.Form do
   end
 
   defp save_restaurant(socket, :edit, restaurant_params) do
-    case Restaurants.update_restaurant(socket.assigns.current_scope, socket.assigns.restaurant, restaurant_params) do
+    case Restaurants.update_restaurant(
+           socket.assigns.current_scope,
+           socket.assigns.restaurant,
+           restaurant_params
+         ) do
       {:ok, restaurant} ->
         {:noreply,
          socket

@@ -4,14 +4,32 @@ defmodule FoodReserveWeb.RestaurantLiveTest do
   import Phoenix.LiveViewTest
   import FoodReserve.RestaurantsFixtures
 
-  @create_attrs %{name: "some name", address: "some address", description: "some description", phone_number: "some phone_number", cuisine_type: "some cuisine_type"}
-  @update_attrs %{name: "some updated name", address: "some updated address", description: "some updated description", phone_number: "some updated phone_number", cuisine_type: "some updated cuisine_type"}
-  @invalid_attrs %{name: nil, address: nil, description: nil, phone_number: nil, cuisine_type: nil}
+  @create_attrs %{
+    name: "some name",
+    address: "some address",
+    description: "some description",
+    phone_number: "some phone_number",
+    cuisine_type: "some cuisine_type"
+  }
+  @update_attrs %{
+    name: "some updated name",
+    address: "some updated address",
+    description: "some updated description",
+    phone_number: "some updated phone_number",
+    cuisine_type: "some updated cuisine_type"
+  }
+  @invalid_attrs %{
+    name: nil,
+    address: nil,
+    description: nil,
+    phone_number: nil,
+    cuisine_type: nil
+  }
 
-  setup :register_and_log_in_user
+  setup :register_and_log_in_restaurant_owner
 
   defp create_restaurant(%{scope: scope}) do
-    restaurant = restaurant_fixture(scope)
+    restaurant = restaurant_fixture(%{user: scope.user})
 
     %{restaurant: restaurant}
   end

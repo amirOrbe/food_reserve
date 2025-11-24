@@ -146,5 +146,4 @@ defmodule FoodReserve.Restaurants do
 
     Restaurant.changeset(restaurant, attrs)
   end
-
 end
