@@ -7,6 +7,7 @@ defmodule FoodReserve.Menus do
   alias FoodReserve.Repo
 
   alias FoodReserve.Menus.Menu
+  alias FoodReserve.Menus.MenuItem
 
   @doc """
   Returns the list of menus for a given scope (user's restaurants).
@@ -245,5 +246,59 @@ defmodule FoodReserve.Menus do
   """
   def change_menu_item(%MenuItem{} = menu_item, attrs \\ %{}) do
     MenuItem.changeset(menu_item, attrs)
+  end
+
+  @doc """
+  Returns the list of menu items for a specific restaurant.
+
+  ## Examples
+
+      iex> list_menu_items_by_restaurant(restaurant_id)
+      [%MenuItem{}, ...]
+  """
+  def list_menu_items_by_restaurant(restaurant_id) do
+    from(mi in MenuItem,
+      join: m in assoc(mi, :menu),
+      where: m.restaurant_id == ^restaurant_id,
+      where: mi.available == true,
+      order_by: [mi.category, mi.name],
+      preload: [:menu]
+    )
+    |> Repo.all()
+  end
+
+  @doc """
+  Returns the list of menu items for a restaurant owned by the user (with scope).
+
+  ## Examples
+
+      iex> list_menu_items_by_restaurant_scoped(scope, restaurant_id)
+      [%MenuItem{}, ...]
+  """
+  def list_menu_items_by_restaurant_scoped(%FoodReserve.Accounts.Scope{} = scope, restaurant_id) do
+    from(mi in MenuItem,
+      join: m in assoc(mi, :menu),
+      join: r in assoc(m, :restaurant),
+      where: m.restaurant_id == ^restaurant_id,
+      where: r.user_id == ^scope.user.id,
+      order_by: [mi.category, mi.name],
+      preload: [:menu]
+    )
+    |> Repo.all()
+  end
+
+  @doc """
+  Gets a menu by restaurant ID.
+
+  ## Examples
+
+      iex> get_menu_by_restaurant(restaurant_id)
+      %Menu{}
+
+      iex> get_menu_by_restaurant(invalid_id)
+      nil
+  """
+  def get_menu_by_restaurant(restaurant_id) do
+    Repo.get_by(Menu, restaurant_id: restaurant_id)
   end
 end

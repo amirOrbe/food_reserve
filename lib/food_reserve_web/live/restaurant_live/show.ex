@@ -2,6 +2,7 @@ defmodule FoodReserveWeb.RestaurantLive.Show do
   use FoodReserveWeb, :live_view
 
   alias FoodReserve.Restaurants
+  alias FoodReserve.Menus
 
   @impl true
   def render(assigns) do
@@ -102,6 +103,71 @@ defmodule FoodReserveWeb.RestaurantLive.Show do
             </div>
           </div>
         </div>
+        
+    <!-- Menu Section -->
+        <div class="bg-white shadow-sm rounded-lg border border-gray-200">
+          <div class="px-6 py-8 sm:px-8">
+            <div class="flex items-center justify-between mb-6">
+              <h2 class="text-xl font-semibold text-gray-900">Menú</h2>
+              <%= if @current_scope && @current_scope.user && @current_scope.user.id == @restaurant.user_id do %>
+                <.link
+                  navigate={~p"/restaurants/#{@restaurant}/menu"}
+                  class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700"
+                >
+                  <.icon name="hero-plus" class="w-4 h-4 mr-2" /> Gestionar Menú
+                </.link>
+              <% end %>
+            </div>
+
+            <%= if Enum.empty?(@menu_items) do %>
+              <div class="text-center py-12">
+                <div class="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                  <.icon name="hero-document-text" class="w-8 h-8 text-gray-400" />
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">
+                  Menú no disponible
+                </h3>
+                <p class="text-gray-500">
+                  <%= if @current_scope && @current_scope.user && @current_scope.user.id == @restaurant.user_id do %>
+                    Agrega elementos a tu menú para que los clientes puedan verlos.
+                  <% else %>
+                    Este restaurante aún no ha publicado su menú.
+                  <% end %>
+                </p>
+              </div>
+            <% else %>
+              <div class="space-y-8">
+                <%= for {category, items} <- @grouped_menu_items do %>
+                  <div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4 pb-2 border-b border-gray-200">
+                      {category}
+                    </h3>
+                    <div class="grid gap-4 md:grid-cols-2">
+                      <%= for item <- items do %>
+                        <div class="flex justify-between items-start p-4 bg-gray-50 rounded-lg">
+                          <div class="flex-1">
+                            <h4 class="font-medium text-gray-900 mb-1">{item.name}</h4>
+                            <p class="text-sm text-gray-600 mb-2">{item.description}</p>
+                            <%= unless item.available do %>
+                              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                No disponible
+                              </span>
+                            <% end %>
+                          </div>
+                          <div class="ml-4 flex-shrink-0">
+                            <span class="text-lg font-semibold text-orange-600">
+                              ${:erlang.float_to_binary(Decimal.to_float(item.price), decimals: 2)}
+                            </span>
+                          </div>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
       </div>
     </Layouts.app>
     """
@@ -110,6 +176,7 @@ defmodule FoodReserveWeb.RestaurantLive.Show do
   @impl true
   def mount(%{"id" => id}, _session, socket) do
     restaurant = Restaurants.get_public_restaurant!(id)
+    menu_items = Menus.list_menu_items_by_restaurant(restaurant.id)
 
     # Solo suscribirse si el usuario está autenticado y es el dueño del restaurante
     if connected?(socket) && socket.assigns.current_scope &&
@@ -121,7 +188,9 @@ defmodule FoodReserveWeb.RestaurantLive.Show do
     {:ok,
      socket
      |> assign(:page_title, "Ver Restaurante")
-     |> assign(:restaurant, restaurant)}
+     |> assign(:restaurant, restaurant)
+     |> assign(:menu_items, menu_items)
+     |> assign(:grouped_menu_items, group_menu_items_by_category(menu_items))}
   end
 
   @impl true
@@ -145,5 +214,11 @@ defmodule FoodReserveWeb.RestaurantLive.Show do
   def handle_info({type, %FoodReserve.Restaurants.Restaurant{}}, socket)
       when type in [:created, :updated, :deleted] do
     {:noreply, socket}
+  end
+
+  defp group_menu_items_by_category(menu_items) do
+    menu_items
+    |> Enum.group_by(fn item -> item.category || "Sin categoría" end)
+    |> Enum.sort_by(fn {category, _items} -> category end)
   end
 end

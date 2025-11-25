@@ -47,4 +47,21 @@ defmodule FoodReserve.RestaurantsFixtures do
 
     restaurant
   end
+
+  @doc """
+  Generate a menu_item.
+  """
+  def menu_item_fixture(scope, attrs \\ %{}) do
+    attrs =
+      Enum.into(attrs, %{
+        available: true,
+        category: "some category",
+        description: "some description",
+        name: "some name",
+        price: "120.5"
+      })
+
+    {:ok, menu_item} = FoodReserve.Restaurants.create_menu_item(scope, attrs)
+    menu_item
+  end
 end

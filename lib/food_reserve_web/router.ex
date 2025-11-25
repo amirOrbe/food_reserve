@@ -49,6 +49,9 @@ defmodule FoodReserveWeb.Router do
       on_mount: [{FoodReserveWeb.UserAuth, :require_restaurant_owner}] do
       live "/restaurants/new", RestaurantLive.Form, :new
       live "/restaurants/:id/edit", RestaurantLive.Form, :edit
+      live "/restaurants/:restaurant_id/menu", MenuLive.Index, :index
+      live "/restaurants/:restaurant_id/menu/new", MenuLive.Form, :new
+      live "/restaurants/:restaurant_id/menu/:id/edit", MenuLive.Form, :edit
     end
 
     live_session :require_authenticated_user,

@@ -127,4 +127,120 @@ defmodule FoodReserve.RestaurantsTest do
       assert %Ecto.Changeset{} = Restaurants.change_restaurant(scope, restaurant)
     end
   end
+
+  describe "menu_items" do
+    alias FoodReserve.Restaurants.MenuItem
+
+    import FoodReserve.AccountsFixtures, only: [user_scope_fixture: 0]
+    import FoodReserve.RestaurantsFixtures
+
+    @invalid_attrs %{name: nil, description: nil, category: nil, available: nil, price: nil}
+
+    test "list_menu_items/1 returns all scoped menu_items" do
+      scope = user_scope_fixture()
+      other_scope = user_scope_fixture()
+      menu_item = menu_item_fixture(scope)
+      other_menu_item = menu_item_fixture(other_scope)
+      assert Restaurants.list_menu_items(scope) == [menu_item]
+      assert Restaurants.list_menu_items(other_scope) == [other_menu_item]
+    end
+
+    test "get_menu_item!/2 returns the menu_item with given id" do
+      scope = user_scope_fixture()
+      menu_item = menu_item_fixture(scope)
+      other_scope = user_scope_fixture()
+      assert Restaurants.get_menu_item!(scope, menu_item.id) == menu_item
+
+      assert_raise Ecto.NoResultsError, fn ->
+        Restaurants.get_menu_item!(other_scope, menu_item.id)
+      end
+    end
+
+    test "create_menu_item/2 with valid data creates a menu_item" do
+      valid_attrs = %{
+        name: "some name",
+        description: "some description",
+        category: "some category",
+        available: true,
+        price: "120.5"
+      }
+
+      scope = user_scope_fixture()
+
+      assert {:ok, %MenuItem{} = menu_item} = Restaurants.create_menu_item(scope, valid_attrs)
+      assert menu_item.name == "some name"
+      assert menu_item.description == "some description"
+      assert menu_item.category == "some category"
+      assert menu_item.available == true
+      assert menu_item.price == Decimal.new("120.5")
+      assert menu_item.user_id == scope.user.id
+    end
+
+    test "create_menu_item/2 with invalid data returns error changeset" do
+      scope = user_scope_fixture()
+      assert {:error, %Ecto.Changeset{}} = Restaurants.create_menu_item(scope, @invalid_attrs)
+    end
+
+    test "update_menu_item/3 with valid data updates the menu_item" do
+      scope = user_scope_fixture()
+      menu_item = menu_item_fixture(scope)
+
+      update_attrs = %{
+        name: "some updated name",
+        description: "some updated description",
+        category: "some updated category",
+        available: false,
+        price: "456.7"
+      }
+
+      assert {:ok, %MenuItem{} = menu_item} =
+               Restaurants.update_menu_item(scope, menu_item, update_attrs)
+
+      assert menu_item.name == "some updated name"
+      assert menu_item.description == "some updated description"
+      assert menu_item.category == "some updated category"
+      assert menu_item.available == false
+      assert menu_item.price == Decimal.new("456.7")
+    end
+
+    test "update_menu_item/3 with invalid scope raises" do
+      scope = user_scope_fixture()
+      other_scope = user_scope_fixture()
+      menu_item = menu_item_fixture(scope)
+
+      assert_raise MatchError, fn ->
+        Restaurants.update_menu_item(other_scope, menu_item, %{})
+      end
+    end
+
+    test "update_menu_item/3 with invalid data returns error changeset" do
+      scope = user_scope_fixture()
+      menu_item = menu_item_fixture(scope)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Restaurants.update_menu_item(scope, menu_item, @invalid_attrs)
+
+      assert menu_item == Restaurants.get_menu_item!(scope, menu_item.id)
+    end
+
+    test "delete_menu_item/2 deletes the menu_item" do
+      scope = user_scope_fixture()
+      menu_item = menu_item_fixture(scope)
+      assert {:ok, %MenuItem{}} = Restaurants.delete_menu_item(scope, menu_item)
+      assert_raise Ecto.NoResultsError, fn -> Restaurants.get_menu_item!(scope, menu_item.id) end
+    end
+
+    test "delete_menu_item/2 with invalid scope raises" do
+      scope = user_scope_fixture()
+      other_scope = user_scope_fixture()
+      menu_item = menu_item_fixture(scope)
+      assert_raise MatchError, fn -> Restaurants.delete_menu_item(other_scope, menu_item) end
+    end
+
+    test "change_menu_item/2 returns a menu_item changeset" do
+      scope = user_scope_fixture()
+      menu_item = menu_item_fixture(scope)
+      assert %Ecto.Changeset{} = Restaurants.change_menu_item(scope, menu_item)
+    end
+  end
 end
