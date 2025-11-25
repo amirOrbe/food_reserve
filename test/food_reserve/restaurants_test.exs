@@ -243,4 +243,124 @@ defmodule FoodReserve.RestaurantsTest do
       assert %Ecto.Changeset{} = Restaurants.change_menu_item(scope, menu_item)
     end
   end
+
+  describe "working_hours" do
+    alias FoodReserve.Restaurants.WorkingHour
+
+    import FoodReserve.AccountsFixtures, only: [user_scope_fixture: 0]
+    import FoodReserve.RestaurantsFixtures
+
+    @invalid_attrs %{day_of_week: nil, open_time: nil, close_time: nil, is_closed: nil}
+
+    test "list_working_hours/1 returns all scoped working_hours" do
+      scope = user_scope_fixture()
+      other_scope = user_scope_fixture()
+      working_hour = working_hour_fixture(scope)
+      other_working_hour = working_hour_fixture(other_scope)
+      assert Restaurants.list_working_hours(scope) == [working_hour]
+      assert Restaurants.list_working_hours(other_scope) == [other_working_hour]
+    end
+
+    test "get_working_hour!/2 returns the working_hour with given id" do
+      scope = user_scope_fixture()
+      working_hour = working_hour_fixture(scope)
+      other_scope = user_scope_fixture()
+      assert Restaurants.get_working_hour!(scope, working_hour.id) == working_hour
+
+      assert_raise Ecto.NoResultsError, fn ->
+        Restaurants.get_working_hour!(other_scope, working_hour.id)
+      end
+    end
+
+    test "create_working_hour/2 with valid data creates a working_hour" do
+      valid_attrs = %{
+        day_of_week: "some day_of_week",
+        open_time: ~T[14:00:00],
+        close_time: ~T[14:00:00],
+        is_closed: true
+      }
+
+      scope = user_scope_fixture()
+
+      assert {:ok, %WorkingHour{} = working_hour} =
+               Restaurants.create_working_hour(scope, valid_attrs)
+
+      assert working_hour.day_of_week == "some day_of_week"
+      assert working_hour.open_time == ~T[14:00:00]
+      assert working_hour.close_time == ~T[14:00:00]
+      assert working_hour.is_closed == true
+      assert working_hour.user_id == scope.user.id
+    end
+
+    test "create_working_hour/2 with invalid data returns error changeset" do
+      scope = user_scope_fixture()
+      assert {:error, %Ecto.Changeset{}} = Restaurants.create_working_hour(scope, @invalid_attrs)
+    end
+
+    test "update_working_hour/3 with valid data updates the working_hour" do
+      scope = user_scope_fixture()
+      working_hour = working_hour_fixture(scope)
+
+      update_attrs = %{
+        day_of_week: "some updated day_of_week",
+        open_time: ~T[15:01:01],
+        close_time: ~T[15:01:01],
+        is_closed: false
+      }
+
+      assert {:ok, %WorkingHour{} = working_hour} =
+               Restaurants.update_working_hour(scope, working_hour, update_attrs)
+
+      assert working_hour.day_of_week == "some updated day_of_week"
+      assert working_hour.open_time == ~T[15:01:01]
+      assert working_hour.close_time == ~T[15:01:01]
+      assert working_hour.is_closed == false
+    end
+
+    test "update_working_hour/3 with invalid scope raises" do
+      scope = user_scope_fixture()
+      other_scope = user_scope_fixture()
+      working_hour = working_hour_fixture(scope)
+
+      assert_raise MatchError, fn ->
+        Restaurants.update_working_hour(other_scope, working_hour, %{})
+      end
+    end
+
+    test "update_working_hour/3 with invalid data returns error changeset" do
+      scope = user_scope_fixture()
+      working_hour = working_hour_fixture(scope)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Restaurants.update_working_hour(scope, working_hour, @invalid_attrs)
+
+      assert working_hour == Restaurants.get_working_hour!(scope, working_hour.id)
+    end
+
+    test "delete_working_hour/2 deletes the working_hour" do
+      scope = user_scope_fixture()
+      working_hour = working_hour_fixture(scope)
+      assert {:ok, %WorkingHour{}} = Restaurants.delete_working_hour(scope, working_hour)
+
+      assert_raise Ecto.NoResultsError, fn ->
+        Restaurants.get_working_hour!(scope, working_hour.id)
+      end
+    end
+
+    test "delete_working_hour/2 with invalid scope raises" do
+      scope = user_scope_fixture()
+      other_scope = user_scope_fixture()
+      working_hour = working_hour_fixture(scope)
+
+      assert_raise MatchError, fn ->
+        Restaurants.delete_working_hour(other_scope, working_hour)
+      end
+    end
+
+    test "change_working_hour/2 returns a working_hour changeset" do
+      scope = user_scope_fixture()
+      working_hour = working_hour_fixture(scope)
+      assert %Ecto.Changeset{} = Restaurants.change_working_hour(scope, working_hour)
+    end
+  end
 end

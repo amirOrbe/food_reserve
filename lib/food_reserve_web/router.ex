@@ -52,6 +52,7 @@ defmodule FoodReserveWeb.Router do
       live "/restaurants/:restaurant_id/menu", MenuLive.Index, :index
       live "/restaurants/:restaurant_id/menu/new", MenuLive.Form, :new
       live "/restaurants/:restaurant_id/menu/:id/edit", MenuLive.Form, :edit
+      live "/restaurants/:restaurant_id/hours", WorkingHoursLive.Index, :index
     end
 
     live_session :require_authenticated_user,

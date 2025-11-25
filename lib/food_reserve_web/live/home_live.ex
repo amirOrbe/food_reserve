@@ -75,7 +75,26 @@ defmodule FoodReserveWeb.HomeLive do
                     </div>
 
                     <div class="p-6">
-                      <h3 class="text-xl font-bold mb-2 text-gray-900">{restaurant.name}</h3>
+                      <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-xl font-bold text-gray-900">{restaurant.name}</h3>
+                        <%= case restaurant.current_status do %>
+                          <% {:open, _closes_at} -> %>
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                              <div class="w-2 h-2 bg-green-500 rounded-full mr-1 animate-pulse"></div>
+                              Abierto
+                            </span>
+                          <% {:closed, _opens_at} -> %>
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                              <div class="w-2 h-2 bg-red-500 rounded-full mr-1"></div>
+                              Cerrado
+                            </span>
+                          <% :unknown -> %>
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                              <div class="w-2 h-2 bg-gray-400 rounded-full mr-1"></div>
+                              Sin horarios
+                            </span>
+                        <% end %>
+                      </div>
                       <p class="text-gray-600 mb-2">
                         <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
                           {restaurant.cuisine_type}
@@ -137,9 +156,75 @@ defmodule FoodReserveWeb.HomeLive do
     # Obtener los primeros 6 restaurantes para mostrar en la página de inicio
     restaurants = Restaurants.list_public_restaurants(limit: 6)
 
+    # Cargar horarios para cada restaurante y calcular su estado
+    restaurants_with_status =
+      Enum.map(restaurants, fn restaurant ->
+        working_hours = Restaurants.get_public_working_hours(restaurant.id)
+        status = get_current_status(working_hours)
+        Map.put(restaurant, :current_status, status)
+      end)
+
     {:ok,
      socket
      |> assign(:page_title, "Inicio")
-     |> assign(:restaurants, restaurants)}
+     |> assign(:restaurants, restaurants_with_status)}
+  end
+
+  defp get_current_status(working_hours) do
+    if Enum.empty?(working_hours) do
+      :unknown
+    else
+      # Usar UTC y asumir zona horaria local para simplicidad
+      now = DateTime.utc_now()
+      current_day = get_current_day_of_week(now)
+      current_time = DateTime.to_time(now)
+
+      case Enum.find(working_hours, fn wh -> wh.day_of_week == current_day end) do
+        nil ->
+          :unknown
+
+        %{is_closed: true} ->
+          {:closed, get_next_opening_time(working_hours, current_day)}
+
+        working_hour ->
+          if (working_hour.open_time && working_hour.close_time &&
+                Time.compare(current_time, working_hour.open_time) != :lt) and
+               Time.compare(current_time, working_hour.close_time) == :lt do
+            {:open, working_hour.close_time}
+          else
+            {:closed, get_next_opening_time(working_hours, current_day)}
+          end
+      end
+    end
+  end
+
+  defp get_current_day_of_week(datetime) do
+    case Date.day_of_week(DateTime.to_date(datetime)) do
+      1 -> "monday"
+      2 -> "tuesday"
+      3 -> "wednesday"
+      4 -> "thursday"
+      5 -> "friday"
+      6 -> "saturday"
+      7 -> "sunday"
+    end
+  end
+
+  defp get_next_opening_time(working_hours, current_day) do
+    days_order = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+    current_index = Enum.find_index(days_order, &(&1 == current_day))
+
+    # Buscar el próximo día abierto
+    Enum.reduce_while(1..7, nil, fn offset, _acc ->
+      next_index = rem(current_index + offset, 7)
+      next_day = Enum.at(days_order, next_index)
+
+      case Enum.find(working_hours, fn wh ->
+             wh.day_of_week == next_day and not wh.is_closed and wh.open_time
+           end) do
+        nil -> {:cont, nil}
+        working_hour -> {:halt, working_hour.open_time}
+      end
+    end)
   end
 end

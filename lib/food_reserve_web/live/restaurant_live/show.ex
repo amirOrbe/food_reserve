@@ -168,6 +168,101 @@ defmodule FoodReserveWeb.RestaurantLive.Show do
             <% end %>
           </div>
         </div>
+        
+    <!-- Working Hours Section -->
+        <div class="bg-white shadow-sm rounded-lg border border-gray-200">
+          <div class="px-6 py-8 sm:px-8">
+            <div class="flex items-center justify-between mb-6">
+              <h2 class="text-xl font-semibold text-gray-900">Horarios de Atención</h2>
+              <%= if @current_scope && @current_scope.user && @current_scope.user.id == @restaurant.user_id do %>
+                <.link
+                  navigate={~p"/restaurants/#{@restaurant}/hours"}
+                  class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700"
+                >
+                  <.icon name="hero-clock" class="w-4 h-4 mr-2" /> Gestionar Horarios
+                </.link>
+              <% end %>
+            </div>
+
+            <%= if Enum.empty?(@working_hours) do %>
+              <div class="text-center py-12">
+                <div class="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                  <.icon name="hero-clock" class="w-8 h-8 text-gray-400" />
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">
+                  Horarios no disponibles
+                </h3>
+                <p class="text-gray-500">
+                  <%= if @current_scope && @current_scope.user && @current_scope.user.id == @restaurant.user_id do %>
+                    Configura los horarios de atención de tu restaurante.
+                  <% else %>
+                    Este restaurante aún no ha configurado sus horarios.
+                  <% end %>
+                </p>
+              </div>
+            <% else %>
+              <div class="grid gap-3">
+                <%= for working_hour <- @working_hours do %>
+                  <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div class="flex items-center">
+                      <div class="w-20 text-sm font-medium text-gray-900">
+                        {FoodReserve.Restaurants.WorkingHour.day_name(working_hour.day_of_week)}
+                      </div>
+                    </div>
+                    <div class="flex items-center">
+                      <%= if working_hour.is_closed do %>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                          <.icon name="hero-x-mark" class="w-4 h-4 mr-1" /> Cerrado
+                        </span>
+                      <% else %>
+                        <div class="flex items-center text-sm text-gray-600">
+                          <.icon name="hero-clock" class="w-4 h-4 mr-2 text-green-500" />
+                          <span class="font-medium">
+                            {Calendar.strftime(working_hour.open_time, "%H:%M")} - {Calendar.strftime(
+                              working_hour.close_time,
+                              "%H:%M"
+                            )}
+                          </span>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+              
+    <!-- Current Status -->
+              <div class="mt-6 pt-6 border-t border-gray-200">
+                <div class="flex items-center justify-center">
+                  <%= case get_current_status(@working_hours) do %>
+                    <% {:open, closes_at} -> %>
+                      <div class="flex items-center text-green-600">
+                        <div class="w-3 h-3 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                        <span class="font-medium">Abierto ahora</span>
+                        <span class="ml-2 text-sm text-gray-500">
+                          • Cierra a las {Calendar.strftime(closes_at, "%H:%M")}
+                        </span>
+                      </div>
+                    <% {:closed, opens_at} -> %>
+                      <div class="flex items-center text-red-600">
+                        <div class="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
+                        <span class="font-medium">Cerrado</span>
+                        <%= if opens_at do %>
+                          <span class="ml-2 text-sm text-gray-500">
+                            • Abre a las {Calendar.strftime(opens_at, "%H:%M")}
+                          </span>
+                        <% end %>
+                      </div>
+                    <% :unknown -> %>
+                      <div class="flex items-center text-gray-500">
+                        <div class="w-3 h-3 bg-gray-400 rounded-full mr-2"></div>
+                        <span>Estado no disponible</span>
+                      </div>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
       </div>
     </Layouts.app>
     """
@@ -177,6 +272,7 @@ defmodule FoodReserveWeb.RestaurantLive.Show do
   def mount(%{"id" => id}, _session, socket) do
     restaurant = Restaurants.get_public_restaurant!(id)
     menu_items = Menus.list_menu_items_by_restaurant(restaurant.id)
+    working_hours = Restaurants.get_public_working_hours(restaurant.id)
 
     # Solo suscribirse si el usuario está autenticado y es el dueño del restaurante
     if connected?(socket) && socket.assigns.current_scope &&
@@ -190,7 +286,8 @@ defmodule FoodReserveWeb.RestaurantLive.Show do
      |> assign(:page_title, "Ver Restaurante")
      |> assign(:restaurant, restaurant)
      |> assign(:menu_items, menu_items)
-     |> assign(:grouped_menu_items, group_menu_items_by_category(menu_items))}
+     |> assign(:grouped_menu_items, group_menu_items_by_category(menu_items))
+     |> assign(:working_hours, working_hours)}
   end
 
   @impl true
@@ -220,5 +317,63 @@ defmodule FoodReserveWeb.RestaurantLive.Show do
     menu_items
     |> Enum.group_by(fn item -> item.category || "Sin categoría" end)
     |> Enum.sort_by(fn {category, _items} -> category end)
+  end
+
+  defp get_current_status(working_hours) do
+    if Enum.empty?(working_hours) do
+      :unknown
+    else
+      # Usar UTC y asumir zona horaria local para simplicidad
+      now = DateTime.utc_now()
+      current_day = get_current_day_of_week(now)
+      current_time = DateTime.to_time(now)
+
+      case Enum.find(working_hours, fn wh -> wh.day_of_week == current_day end) do
+        nil ->
+          :unknown
+
+        %{is_closed: true} ->
+          {:closed, get_next_opening_time(working_hours, current_day)}
+
+        working_hour ->
+          if (working_hour.open_time && working_hour.close_time &&
+                Time.compare(current_time, working_hour.open_time) != :lt) and
+               Time.compare(current_time, working_hour.close_time) == :lt do
+            {:open, working_hour.close_time}
+          else
+            {:closed, get_next_opening_time(working_hours, current_day)}
+          end
+      end
+    end
+  end
+
+  defp get_current_day_of_week(datetime) do
+    case Date.day_of_week(DateTime.to_date(datetime)) do
+      1 -> "monday"
+      2 -> "tuesday"
+      3 -> "wednesday"
+      4 -> "thursday"
+      5 -> "friday"
+      6 -> "saturday"
+      7 -> "sunday"
+    end
+  end
+
+  defp get_next_opening_time(working_hours, current_day) do
+    days_order = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+    current_index = Enum.find_index(days_order, &(&1 == current_day))
+
+    # Buscar el próximo día abierto
+    Enum.reduce_while(1..7, nil, fn offset, _acc ->
+      next_index = rem(current_index + offset, 7)
+      next_day = Enum.at(days_order, next_index)
+
+      case Enum.find(working_hours, fn wh ->
+             wh.day_of_week == next_day and not wh.is_closed and wh.open_time
+           end) do
+        nil -> {:cont, nil}
+        working_hour -> {:halt, working_hour.open_time}
+      end
+    end)
   end
 end

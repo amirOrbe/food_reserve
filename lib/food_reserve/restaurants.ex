@@ -7,6 +7,7 @@ defmodule FoodReserve.Restaurants do
   alias FoodReserve.Repo
 
   alias FoodReserve.Restaurants.Restaurant
+  alias FoodReserve.Restaurants.WorkingHour
   alias FoodReserve.Accounts.Scope
 
   @doc """
@@ -182,5 +183,110 @@ defmodule FoodReserve.Restaurants do
     true = restaurant.user_id == scope.user.id
 
     Restaurant.changeset(restaurant, attrs)
+  end
+
+  # Working Hours functions
+
+  @doc """
+  Returns the list of working hours for a restaurant owned by the user.
+
+  ## Examples
+
+      iex> list_working_hours_by_restaurant(scope, restaurant_id)
+      [%WorkingHour{}, ...]
+  """
+  def list_working_hours_by_restaurant(%Scope{} = scope, restaurant_id) do
+    from(wh in WorkingHour,
+      join: r in assoc(wh, :restaurant),
+      where: wh.restaurant_id == ^restaurant_id,
+      where: r.user_id == ^scope.user.id,
+      order_by: [
+        fragment(
+          "CASE ?
+          WHEN 'monday' THEN 1
+          WHEN 'tuesday' THEN 2
+          WHEN 'wednesday' THEN 3
+          WHEN 'thursday' THEN 4
+          WHEN 'friday' THEN 5
+          WHEN 'saturday' THEN 6
+          WHEN 'sunday' THEN 7
+        END",
+          wh.day_of_week
+        )
+      ]
+    )
+    |> Repo.all()
+  end
+
+  @doc """
+  Returns the list of working hours for a restaurant (public access).
+
+  ## Examples
+
+      iex> get_public_working_hours(restaurant_id)
+      [%WorkingHour{}, ...]
+  """
+  def get_public_working_hours(restaurant_id) do
+    from(wh in WorkingHour,
+      where: wh.restaurant_id == ^restaurant_id,
+      order_by: [
+        fragment(
+          "CASE ?
+          WHEN 'monday' THEN 1
+          WHEN 'tuesday' THEN 2
+          WHEN 'wednesday' THEN 3
+          WHEN 'thursday' THEN 4
+          WHEN 'friday' THEN 5
+          WHEN 'saturday' THEN 6
+          WHEN 'sunday' THEN 7
+        END",
+          wh.day_of_week
+        )
+      ]
+    )
+    |> Repo.all()
+  end
+
+  @doc """
+  Creates or updates working hours for a restaurant.
+
+  ## Examples
+
+      iex> upsert_working_hour(scope, restaurant_id, attrs)
+      {:ok, %WorkingHour{}}
+  """
+  def upsert_working_hour(%Scope{} = scope, restaurant_id, attrs) do
+    # Verificar que el restaurante pertenece al usuario
+    restaurant = get_restaurant!(scope, restaurant_id)
+
+    attrs = Map.put(attrs, "restaurant_id", restaurant.id)
+    day_of_week = attrs["day_of_week"]
+
+    case Repo.get_by(WorkingHour, restaurant_id: restaurant.id, day_of_week: day_of_week) do
+      nil ->
+        %WorkingHour{}
+        |> WorkingHour.changeset(attrs)
+        |> Repo.insert()
+
+      existing_hour ->
+        existing_hour
+        |> WorkingHour.changeset(attrs)
+        |> Repo.update()
+    end
+  end
+
+  @doc """
+  Deletes a working hour.
+
+  ## Examples
+
+      iex> delete_working_hour(scope, working_hour)
+      {:ok, %WorkingHour{}}
+  """
+  def delete_working_hour(%Scope{} = scope, %WorkingHour{} = working_hour) do
+    # Verificar que el horario pertenece a un restaurante del usuario
+    restaurant = get_restaurant!(scope, working_hour.restaurant_id)
+
+    Repo.delete(working_hour)
   end
 end

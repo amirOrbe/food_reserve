@@ -64,4 +64,20 @@ defmodule FoodReserve.RestaurantsFixtures do
     {:ok, menu_item} = FoodReserve.Restaurants.create_menu_item(scope, attrs)
     menu_item
   end
+
+  @doc """
+  Generate a working_hour.
+  """
+  def working_hour_fixture(scope, attrs \\ %{}) do
+    attrs =
+      Enum.into(attrs, %{
+        close_time: ~T[14:00:00],
+        day_of_week: "some day_of_week",
+        is_closed: true,
+        open_time: ~T[14:00:00]
+      })
+
+    {:ok, working_hour} = FoodReserve.Restaurants.create_working_hour(scope, attrs)
+    working_hour
+  end
 end
