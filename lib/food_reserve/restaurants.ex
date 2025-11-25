@@ -45,6 +45,26 @@ defmodule FoodReserve.Restaurants do
   end
 
   @doc """
+  Returns a list of public restaurants for display on the home page.
+
+  ## Examples
+
+      iex> list_public_restaurants()
+      [%Restaurant{}, ...]
+
+      iex> list_public_restaurants(limit: 6)
+      [%Restaurant{}, ...]
+  """
+  def list_public_restaurants(opts \\ []) do
+    limit = Keyword.get(opts, :limit, 10)
+
+    Restaurant
+    |> order_by([r], desc: r.inserted_at)
+    |> limit(^limit)
+    |> Repo.all()
+  end
+
+  @doc """
   Gets a single restaurant.
 
   Raises `Ecto.NoResultsError` if the Restaurant does not exist.
@@ -60,6 +80,23 @@ defmodule FoodReserve.Restaurants do
   """
   def get_restaurant!(%Scope{} = scope, id) do
     Repo.get_by!(Restaurant, id: id, user_id: scope.user.id)
+  end
+
+  @doc """
+  Gets a single restaurant by ID for public access.
+
+  Raises `Ecto.NoResultsError` if the Restaurant does not exist.
+
+  ## Examples
+
+      iex> get_public_restaurant!(123)
+      %Restaurant{}
+
+      iex> get_public_restaurant!(456)
+      ** (Ecto.NoResultsError)
+  """
+  def get_public_restaurant!(id) do
+    Repo.get!(Restaurant, id)
   end
 
   @doc """

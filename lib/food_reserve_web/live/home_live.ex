@@ -1,6 +1,8 @@
 defmodule FoodReserveWeb.HomeLive do
   use FoodReserveWeb, :live_view
 
+  alias FoodReserve.Restaurants
+
   @impl true
   def render(assigns) do
     ~H"""
@@ -32,29 +34,97 @@ defmodule FoodReserveWeb.HomeLive do
             <h2 class="text-3xl font-bold text-center text-gray-800 mb-10">
               Restaurantes Destacados
             </h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              <!-- Example Restaurant Card -->
-              <div class="bg-white rounded-2xl shadow-lg overflow-hidden transform hover:-translate-y-1 transition-transform duration-300">
-                <img
-                  src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80"
-                  alt="The Cozy Italian"
-                  class="w-full h-48 object-cover"
-                />
-                <div class="p-6">
-                  <h3 class="text-xl font-bold mb-2">La Italiana Acogedora</h3>
-                  <p class="text-gray-600 mb-4">Cocina Italiana</p>
-                  <div class="flex items-center">
-                    <.icon name="hero-star-solid" class="w-5 h-5 text-yellow-400" />
-                    <.icon name="hero-star-solid" class="w-5 h-5 text-yellow-400" />
-                    <.icon name="hero-star-solid" class="w-5 h-5 text-yellow-400" />
-                    <.icon name="hero-star-solid" class="w-5 h-5 text-yellow-400" />
-                    <.icon name="hero-star" class="w-5 h-5 text-yellow-400" />
-                    <span class="ml-2 text-gray-500">4.0 (124 reseñas)</span>
-                  </div>
+
+            <%= if Enum.empty?(@restaurants) do %>
+              <div class="text-center py-12">
+                <div class="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                  <.icon name="hero-building-storefront" class="w-8 h-8 text-gray-400" />
                 </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">
+                  Aún no hay restaurantes registrados
+                </h3>
+                <p class="text-gray-500 mb-6">
+                  ¡Sé el primero en registrar tu restaurante y aparecer aquí!
+                </p>
+                <%= if @current_scope && @current_scope.user do %>
+                  <.link
+                    navigate={~p"/users/register"}
+                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700"
+                  >
+                    Registrar Restaurante
+                  </.link>
+                <% else %>
+                  <.link
+                    navigate={~p"/users/register"}
+                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700"
+                  >
+                    Comenzar Ahora
+                  </.link>
+                <% end %>
               </div>
-              <!-- Add more cards here -->
-            </div>
+            <% else %>
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <%= for restaurant <- @restaurants do %>
+                  <div class="bg-white rounded-2xl shadow-lg overflow-hidden transform hover:-translate-y-1 transition-transform duration-300">
+                    <!-- Imagen placeholder con gradiente -->
+                    <div class="w-full h-48 bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center">
+                      <div class="text-center text-white">
+                        <.icon name="hero-building-storefront" class="w-12 h-12 mx-auto mb-2" />
+                        <p class="text-sm font-medium">Foto próximamente</p>
+                      </div>
+                    </div>
+
+                    <div class="p-6">
+                      <h3 class="text-xl font-bold mb-2 text-gray-900">{restaurant.name}</h3>
+                      <p class="text-gray-600 mb-2">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                          {restaurant.cuisine_type}
+                        </span>
+                      </p>
+                      <p class="text-gray-600 mb-4 text-sm line-clamp-2">{restaurant.description}</p>
+
+                      <div class="flex items-center justify-between">
+                        <div class="flex items-center text-sm text-gray-500">
+                          <.icon name="hero-map-pin" class="w-4 h-4 mr-1" />
+                          <span class="truncate">{restaurant.address}</span>
+                        </div>
+                        <.link
+                          navigate={~p"/restaurants/#{restaurant}"}
+                          class="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-orange-600 bg-orange-50 hover:bg-orange-100"
+                        >
+                          Ver más
+                        </.link>
+                      </div>
+
+                      <%= if restaurant.phone_number do %>
+                        <div class="mt-3 pt-3 border-t border-gray-100">
+                          <div class="flex items-center text-sm text-gray-500">
+                            <.icon name="hero-phone" class="w-4 h-4 mr-1" />
+                            <a
+                              href={"tel:#{restaurant.phone_number}"}
+                              class="text-orange-600 hover:text-orange-700"
+                            >
+                              {restaurant.phone_number}
+                            </a>
+                          </div>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+
+              <%= if length(@restaurants) >= 6 do %>
+                <div class="text-center mt-12">
+                  <.link
+                    navigate={~p"/restaurants"}
+                    class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700"
+                  >
+                    Ver Todos los Restaurantes <.icon name="hero-arrow-right" class="ml-2 w-5 h-5" />
+                  </.link>
+                </div>
+              <% end %>
+            <% end %>
           </div>
         </section>
       </div>
@@ -64,6 +134,12 @@ defmodule FoodReserveWeb.HomeLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, :page_title, "Inicio")}
+    # Obtener los primeros 6 restaurantes para mostrar en la página de inicio
+    restaurants = Restaurants.list_public_restaurants(limit: 6)
+
+    {:ok,
+     socket
+     |> assign(:page_title, "Inicio")
+     |> assign(:restaurants, restaurants)}
   end
 end
