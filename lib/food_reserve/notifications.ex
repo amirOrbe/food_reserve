@@ -9,6 +9,22 @@ defmodule FoodReserve.Notifications do
   alias FoodReserve.Accounts.Scope
 
   @doc """
+  Subscribes to notifications for a specific user.
+  """
+  def subscribe_to_user_notifications(user_id) do
+    Phoenix.PubSub.subscribe(FoodReserve.PubSub, "user_notifications:#{user_id}")
+  end
+
+  # Broadcasts a notification event to the user's channel.
+  defp broadcast_notification(notification) do
+    Phoenix.PubSub.broadcast(
+      FoodReserve.PubSub,
+      "user_notifications:#{notification.user_id}",
+      {:new_notification, notification}
+    )
+  end
+
+  @doc """
   Returns the list of notifications for a user.
 
   ## Examples
@@ -116,9 +132,17 @@ defmodule FoodReserve.Notifications do
 
   """
   def create_notification(attrs \\ %{}) do
-    %Notification{}
-    |> Notification.changeset(attrs)
-    |> Repo.insert()
+    case %Notification{}
+         |> Notification.changeset(attrs)
+         |> Repo.insert() do
+      {:ok, notification} ->
+        # Broadcast the new notification in real-time
+        broadcast_notification(notification)
+        {:ok, notification}
+
+      {:error, changeset} ->
+        {:error, changeset}
+    end
   end
 
   @doc """

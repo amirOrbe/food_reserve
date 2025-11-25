@@ -1,12 +1,17 @@
 defmodule FoodReserveWeb.HomeLive do
   use FoodReserveWeb, :live_view
+  import FoodReserveWeb.LiveHelpers
 
   alias FoodReserve.Restaurants
 
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_scope}>
+    <Layouts.app
+      flash={@flash}
+      current_scope={@current_scope}
+      unread_notifications_count={@unread_notifications_count}
+    >
       <div class="bg-gray-50">
         <section class="bg-white">
           <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
@@ -227,4 +232,7 @@ defmodule FoodReserveWeb.HomeLive do
       end
     end)
   end
+
+  # Handle real-time notifications
+  handle_notifications()
 end

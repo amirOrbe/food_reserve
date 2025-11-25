@@ -1,5 +1,6 @@
 defmodule FoodReserveWeb.MenuLive.Index do
   use FoodReserveWeb, :live_view
+  import FoodReserveWeb.LiveHelpers
 
   alias FoodReserve.Restaurants
   alias FoodReserve.Menus
@@ -7,7 +8,11 @@ defmodule FoodReserveWeb.MenuLive.Index do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_scope}>
+    <Layouts.app
+      flash={@flash}
+      current_scope={@current_scope}
+      unread_notifications_count={@unread_notifications_count}
+    >
       <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Header -->
         <div class="bg-white shadow-sm rounded-lg border border-gray-200 mb-6">
@@ -158,4 +163,7 @@ defmodule FoodReserveWeb.MenuLive.Index do
     |> Enum.group_by(fn item -> item.category || "Sin categoría" end)
     |> Enum.sort_by(fn {category, _items} -> category end)
   end
+
+  # Handle real-time notifications
+  handle_notifications()
 end

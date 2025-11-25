@@ -58,6 +58,19 @@ defmodule FoodReserveWeb.Layouts do
     <!-- Desktop Navigation -->
           <div class="hidden md:flex items-center space-x-4">
             <%= if @current_scope && @current_scope.user do %>
+              <!-- Icono de Notificaciones -->
+              <.link
+                navigate={~p"/notifications"}
+                class="relative p-2 text-gray-600 hover:text-orange-600 transition-colors duration-200"
+              >
+                <.icon name="hero-bell" class="w-6 h-6" />
+                <%= if @unread_notifications_count > 0 do %>
+                  <span class="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-600 rounded-full min-w-[1.25rem] h-5">
+                    {if @unread_notifications_count > 99, do: "99+", else: @unread_notifications_count}
+                  </span>
+                <% end %>
+              </.link>
+
               <div class="relative" x-data="{ userMenuOpen: false }">
                 <button
                   @click="userMenuOpen = !userMenuOpen"
@@ -121,6 +134,20 @@ defmodule FoodReserveWeb.Layouts do
           
     <!-- Mobile menu button -->
           <div class="md:hidden flex items-center space-x-2">
+            <%= if @current_scope && @current_scope.user do %>
+              <!-- Icono de Notificaciones Móvil -->
+              <.link
+                navigate={~p"/notifications"}
+                class="relative p-2 text-gray-600 hover:text-orange-600 transition-colors duration-200"
+              >
+                <.icon name="hero-bell" class="w-6 h-6" />
+                <%= if @unread_notifications_count > 0 do %>
+                  <span class="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-600 rounded-full min-w-[1.25rem] h-5">
+                    {if @unread_notifications_count > 99, do: "99+", else: @unread_notifications_count}
+                  </span>
+                <% end %>
+              </.link>
+            <% end %>
             <.theme_toggle />
             <button
               @click.stop="mobileMenuOpen = !mobileMenuOpen"

@@ -216,13 +216,22 @@ defmodule FoodReserveWeb.UserAuth do
       end
   """
   def on_mount(:mount_current_scope, _params, session, socket) do
-    {:cont, mount_current_scope(socket, session)}
+    socket = mount_current_scope(socket, session)
+
+    # Subscribe to real-time notifications if user is authenticated
+    if socket.assigns.current_scope && socket.assigns.current_scope.user do
+      Notifications.subscribe_to_user_notifications(socket.assigns.current_scope.user.id)
+    end
+
+    {:cont, socket}
   end
 
   def on_mount(:require_authenticated, _params, session, socket) do
     socket = mount_current_scope(socket, session)
 
     if socket.assigns.current_scope && socket.assigns.current_scope.user do
+      # Subscribe to real-time notifications for authenticated users
+      Notifications.subscribe_to_user_notifications(socket.assigns.current_scope.user.id)
       {:cont, socket}
     else
       socket =

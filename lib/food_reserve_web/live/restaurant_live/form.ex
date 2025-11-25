@@ -1,5 +1,6 @@
 defmodule FoodReserveWeb.RestaurantLive.Form do
   use FoodReserveWeb, :live_view
+  import FoodReserveWeb.LiveHelpers
 
   alias FoodReserve.Restaurants
   alias FoodReserve.Restaurants.Restaurant
@@ -7,7 +8,11 @@ defmodule FoodReserveWeb.RestaurantLive.Form do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_scope}>
+    <Layouts.app
+      flash={@flash}
+      current_scope={@current_scope}
+      unread_notifications_count={@unread_notifications_count}
+    >
       <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div class="bg-white shadow-sm rounded-lg border border-gray-200">
           <div class="px-6 py-8 sm:px-8">
@@ -199,4 +204,7 @@ defmodule FoodReserveWeb.RestaurantLive.Form do
 
   defp return_path(_scope, "index", _restaurant), do: ~p"/restaurants"
   defp return_path(_scope, "show", restaurant), do: ~p"/restaurants/#{restaurant}"
+
+  # Handle real-time notifications
+  handle_notifications()
 end

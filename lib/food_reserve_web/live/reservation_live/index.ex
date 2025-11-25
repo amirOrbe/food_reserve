@@ -1,5 +1,6 @@
 defmodule FoodReserveWeb.ReservationLive.Index do
   use FoodReserveWeb, :live_view
+  import FoodReserveWeb.LiveHelpers
 
   alias FoodReserve.Reservations
   alias FoodReserve.Reservations.Reservation
@@ -7,7 +8,11 @@ defmodule FoodReserveWeb.ReservationLive.Index do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_scope}>
+    <Layouts.app
+      flash={@flash}
+      current_scope={@current_scope}
+      unread_notifications_count={@unread_notifications_count}
+    >
       <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Header -->
         <div class="bg-white shadow-sm rounded-lg border border-gray-200 mb-6">
@@ -301,4 +306,7 @@ defmodule FoodReserveWeb.ReservationLive.Index do
         {:noreply, put_flash(socket, :error, "No se pudo cancelar la reserva")}
     end
   end
+
+  # Handle real-time notifications
+  handle_notifications()
 end

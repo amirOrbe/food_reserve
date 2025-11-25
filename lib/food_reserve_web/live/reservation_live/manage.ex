@@ -1,5 +1,6 @@
 defmodule FoodReserveWeb.ReservationLive.Manage do
   use FoodReserveWeb, :live_view
+  import FoodReserveWeb.LiveHelpers
 
   alias FoodReserve.Restaurants
   alias FoodReserve.Reservations
@@ -7,7 +8,11 @@ defmodule FoodReserveWeb.ReservationLive.Manage do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_scope}>
+    <Layouts.app
+      flash={@flash}
+      current_scope={@current_scope}
+      unread_notifications_count={@unread_notifications_count}
+    >
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Header -->
         <div class="bg-white shadow-sm rounded-lg border border-gray-200 mb-6">
@@ -194,7 +199,7 @@ defmodule FoodReserveWeb.ReservationLive.Manage do
                               type="button"
                               class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700"
                             >
-                              Aceptar (ID: {Map.get(reservation, :id)})
+                              Aceptar
                             </button>
                             <button
                               phx-click="decline_reservation"
@@ -377,4 +382,7 @@ defmodule FoodReserveWeb.ReservationLive.Manage do
     IO.inspect(params, label: "PARAMS")
     {:noreply, socket}
   end
+
+  # Handle real-time notifications
+  handle_notifications()
 end

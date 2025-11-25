@@ -1,5 +1,6 @@
 defmodule FoodReserveWeb.RestaurantLive.Index do
   use FoodReserveWeb, :live_view
+  import FoodReserveWeb.LiveHelpers
 
   alias FoodReserve.Restaurants
   alias FoodReserve.Reservations
@@ -8,7 +9,11 @@ defmodule FoodReserveWeb.RestaurantLive.Index do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_scope}>
+    <Layouts.app
+      flash={@flash}
+      current_scope={@current_scope}
+      unread_notifications_count={@unread_notifications_count}
+    >
       <div class={[
         "mx-auto px-4 sm:px-6 lg:px-8 py-8",
         if(User.restaurant_owner?(@current_scope.user), do: "max-w-7xl", else: "max-w-5xl")
@@ -269,4 +274,7 @@ defmodule FoodReserveWeb.RestaurantLive.Index do
      |> stream_delete(:restaurants, restaurant)
      |> assign(:restaurants_count, socket.assigns.restaurants_count - 1)}
   end
+
+  # Handle real-time notifications
+  handle_notifications()
 end
