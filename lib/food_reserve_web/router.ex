@@ -53,6 +53,7 @@ defmodule FoodReserveWeb.Router do
       live "/restaurants/:restaurant_id/menu/new", MenuLive.Form, :new
       live "/restaurants/:restaurant_id/menu/:id/edit", MenuLive.Form, :edit
       live "/restaurants/:restaurant_id/hours", WorkingHoursLive.Index, :index
+      live "/restaurants/:restaurant_id/reservations", ReservationLive.Manage, :index
     end
 
     live_session :require_authenticated_user,
@@ -65,6 +66,10 @@ defmodule FoodReserveWeb.Router do
       # Routes accessible to all authenticated users (customers can view restaurants)
       live "/restaurants", RestaurantLive.Index, :index
       live "/restaurants/:id", RestaurantLive.Show, :show
+
+      # Reservation routes (for customers)
+      live "/restaurants/:restaurant_id/reserve", ReservationLive.New, :new
+      live "/my-reservations", ReservationLive.Index, :index
     end
 
     post "/users/update-password", UserSessionController, :update_password

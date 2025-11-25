@@ -34,20 +34,61 @@ defmodule FoodReserveWeb.RestaurantLive.Show do
                   Volver
                 </.link>
 
-                <%= if @current_scope && @current_scope.user && @current_scope.user.id == @restaurant.user_id do %>
+                <%= if @current_scope && @current_scope.user do %>
+                  <%= if @current_scope.user.id == @restaurant.user_id do %>
+                    <!-- Botón para dueños del restaurante -->
+                    <.link
+                      navigate={~p"/restaurants/#{@restaurant}/edit?return_to=show"}
+                      class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors duration-200"
+                    >
+                      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                        />
+                      </svg>
+                      Editar
+                    </.link>
+                  <% else %>
+                    <!-- Botón para clientes -->
+                    <.link
+                      navigate={~p"/restaurants/#{@restaurant}/reserve"}
+                      class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
+                    >
+                      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4h3a2 2 0 012 2v1a2 2 0 01-2 2H6a2 2 0 01-2-2V9a2 2 0 012-2h2z"
+                        />
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M16 11v6a2 2 0 01-2 2H10a2 2 0 01-2-2v-6"
+                        />
+                      </svg>
+                      Hacer Reserva
+                    </.link>
+                  <% end %>
+                <% else %>
+                  <!-- Botón para usuarios no autenticados -->
                   <.link
-                    navigate={~p"/restaurants/#{@restaurant}/edit?return_to=show"}
-                    class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors duration-200"
+                    navigate={~p"/users/log-in"}
+                    class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors duration-200"
                   >
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
                         stroke-linecap="round"
                         stroke-linejoin="round"
                         stroke-width="2"
-                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                        d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
                       />
                     </svg>
-                    Editar
+                    Iniciar Sesión para Reservar
                   </.link>
                 <% end %>
               </div>
@@ -177,9 +218,16 @@ defmodule FoodReserveWeb.RestaurantLive.Show do
               <%= if @current_scope && @current_scope.user && @current_scope.user.id == @restaurant.user_id do %>
                 <.link
                   navigate={~p"/restaurants/#{@restaurant}/hours"}
-                  class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700"
+                  class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
                 >
                   <.icon name="hero-clock" class="w-4 h-4 mr-2" /> Gestionar Horarios
+                </.link>
+
+                <.link
+                  navigate={~p"/restaurants/#{@restaurant}/reservations"}
+                  class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
+                >
+                  <.icon name="hero-calendar-days" class="w-4 h-4 mr-2" /> Gestionar Reservas
                 </.link>
               <% end %>
             </div>
