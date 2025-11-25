@@ -101,7 +101,7 @@ defmodule FoodReserve.MenusTest do
       only: [user_scope_fixture: 0, user_scope_fixture: 1, user_fixture: 1]
 
     import FoodReserve.MenusFixtures
-    import FoodReserve.RestaurantsFixtures
+    import FoodReserve.RestaurantsFixtures, except: [menu_item_fixture: 1, menu_item_fixture: 2]
 
     @invalid_attrs %{name: nil, description: nil, price: nil}
 

@@ -52,16 +52,35 @@ defmodule FoodReserve.RestaurantsFixtures do
   Generate a menu_item.
   """
   def menu_item_fixture(scope, attrs \\ %{}) do
+    # Crear un menú primero si no se proporciona menu_id
+    menu =
+      case attrs[:menu_id] || attrs["menu_id"] do
+        nil ->
+          restaurant = restaurant_fixture(scope)
+
+          {:ok, menu} =
+            FoodReserve.Menus.create_menu(scope, %{
+              name: "Test Menu",
+              restaurant_id: restaurant.id
+            })
+
+          menu
+
+        menu_id ->
+          FoodReserve.Menus.get_menu!(scope, menu_id)
+      end
+
     attrs =
       Enum.into(attrs, %{
         available: true,
         category: "some category",
         description: "some description",
         name: "some name",
-        price: "120.5"
+        price: "120.5",
+        menu_id: menu.id
       })
 
-    {:ok, menu_item} = FoodReserve.Restaurants.create_menu_item(scope, attrs)
+    {:ok, menu_item} = FoodReserve.Menus.create_menu_item(scope, attrs)
     menu_item
   end
 
@@ -69,15 +88,18 @@ defmodule FoodReserve.RestaurantsFixtures do
   Generate a working_hour.
   """
   def working_hour_fixture(scope, attrs \\ %{}) do
+    restaurant = restaurant_fixture(scope)
+
     attrs =
       Enum.into(attrs, %{
-        close_time: ~T[14:00:00],
-        day_of_week: "some day_of_week",
-        is_closed: true,
-        open_time: ~T[14:00:00]
+        "close_time" => ~T[22:00:00],
+        "day_of_week" => "monday",
+        "is_closed" => false,
+        "open_time" => ~T[09:00:00]
       })
 
-    {:ok, working_hour} = FoodReserve.Restaurants.create_working_hour(scope, attrs)
+    {:ok, working_hour} = FoodReserve.Restaurants.upsert_working_hour(scope, restaurant.id, attrs)
+
     working_hour
   end
 end

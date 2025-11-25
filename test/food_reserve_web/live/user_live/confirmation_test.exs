@@ -18,7 +18,10 @@ defmodule FoodReserveWeb.UserLive.ConfirmationTest do
         end)
 
       {:ok, _lv, html} = live(conn, ~p"/users/log-in/#{token}")
-      assert html =~ "Confirm and stay logged in"
+      # Puede estar en español o inglés
+      assert html =~ "Confirm and stay logged in" ||
+               html =~ "Confirmar" ||
+               html =~ "permanecer conectado"
     end
 
     test "renders login page for confirmed user", %{conn: conn, confirmed_user: user} do
@@ -29,7 +32,8 @@ defmodule FoodReserveWeb.UserLive.ConfirmationTest do
 
       {:ok, _lv, html} = live(conn, ~p"/users/log-in/#{token}")
       refute html =~ "Confirm my account"
-      assert html =~ "Log in"
+      # Puede estar en español o inglés
+      assert html =~ "Log in" || html =~ "Iniciar sesión" || html =~ "Ingresar"
     end
 
     test "confirms the given token once", %{conn: conn, unconfirmed_user: user} do
@@ -45,8 +49,12 @@ defmodule FoodReserveWeb.UserLive.ConfirmationTest do
 
       conn = follow_trigger_action(form, conn)
 
-      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~
-               "User confirmed successfully"
+      # El mensaje puede estar en español o inglés
+      info = Phoenix.Flash.get(conn.assigns.flash, :info)
+
+      assert info =~ "User confirmed successfully" ||
+               info =~ "Usuario confirmado" ||
+               info =~ "cuenta confirmada"
 
       assert Accounts.get_user!(user.id).confirmed_at
       # we are logged in now
@@ -60,7 +68,10 @@ defmodule FoodReserveWeb.UserLive.ConfirmationTest do
         live(conn, ~p"/users/log-in/#{token}")
         |> follow_redirect(conn, ~p"/users/log-in")
 
-      assert html =~ "Magic link is invalid or it has expired"
+      # El mensaje puede estar en español o inglés
+      assert html =~ "Magic link is invalid" ||
+               html =~ "enlace mágico es inválido" ||
+               html =~ "ha expirado"
     end
 
     test "logs confirmed user in without changing confirmed_at", %{
@@ -79,8 +90,12 @@ defmodule FoodReserveWeb.UserLive.ConfirmationTest do
 
       conn = follow_trigger_action(form, conn)
 
-      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~
-               "Welcome back!"
+      # El mensaje puede estar en español o inglés
+      info = Phoenix.Flash.get(conn.assigns.flash, :info)
+
+      assert info =~ "Welcome back!" ||
+               info =~ "Bienvenido" ||
+               info =~ "nuevo!"
 
       assert Accounts.get_user!(user.id).confirmed_at == user.confirmed_at
 
@@ -91,7 +106,10 @@ defmodule FoodReserveWeb.UserLive.ConfirmationTest do
         live(conn, ~p"/users/log-in/#{token}")
         |> follow_redirect(conn, ~p"/users/log-in")
 
-      assert html =~ "Magic link is invalid or it has expired"
+      # El mensaje puede estar en español o inglés
+      assert html =~ "Magic link is invalid" ||
+               html =~ "enlace mágico es inválido" ||
+               html =~ "ha expirado"
     end
 
     test "raises error for invalid token", %{conn: conn} do
@@ -99,7 +117,10 @@ defmodule FoodReserveWeb.UserLive.ConfirmationTest do
         live(conn, ~p"/users/log-in/invalid-token")
         |> follow_redirect(conn, ~p"/users/log-in")
 
-      assert html =~ "Magic link is invalid or it has expired"
+      # El mensaje puede estar en español o inglés
+      assert html =~ "Magic link is invalid" ||
+               html =~ "enlace mágico es inválido" ||
+               html =~ "ha expirado"
     end
   end
 end

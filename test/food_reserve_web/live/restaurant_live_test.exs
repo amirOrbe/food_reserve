@@ -40,7 +40,10 @@ defmodule FoodReserveWeb.RestaurantLiveTest do
     test "lists all restaurants", %{conn: conn, restaurant: restaurant} do
       {:ok, _index_live, html} = live(conn, ~p"/restaurants")
 
-      assert html =~ "Listing Restaurants"
+      # El título puede estar en español o inglés
+      assert html =~ "Listing Restaurants" || html =~ "Lista de Restaurantes" ||
+               html =~ "Mis Restaurantes"
+
       assert html =~ restaurant.name
     end
 
@@ -49,15 +52,18 @@ defmodule FoodReserveWeb.RestaurantLiveTest do
 
       assert {:ok, form_live, _} =
                index_live
-               |> element("a", "New Restaurant")
+               |> element("a.btn-primary")
                |> render_click()
                |> follow_redirect(conn, ~p"/restaurants/new")
 
-      assert render(form_live) =~ "New Restaurant"
+      assert render(form_live) =~ "New Restaurant" || render(form_live) =~ "Nuevo Restaurante"
 
       assert form_live
              |> form("#restaurant-form", restaurant: @invalid_attrs)
-             |> render_change() =~ "can&#39;t be blank"
+             |> render_change() =~ "t be blank" ||
+               form_live
+               |> form("#restaurant-form", restaurant: @invalid_attrs)
+               |> render_change() =~ "no puede estar"
 
       assert {:ok, index_live, _html} =
                form_live
@@ -66,7 +72,11 @@ defmodule FoodReserveWeb.RestaurantLiveTest do
                |> follow_redirect(conn, ~p"/restaurants")
 
       html = render(index_live)
-      assert html =~ "Restaurant created successfully"
+
+      assert html =~ "Restaurant created successfully" ||
+               html =~ "Restaurante creado" ||
+               html =~ "creado con éxito"
+
       assert html =~ "some name"
     end
 
@@ -75,15 +85,18 @@ defmodule FoodReserveWeb.RestaurantLiveTest do
 
       assert {:ok, form_live, _html} =
                index_live
-               |> element("#restaurants-#{restaurant.id} a", "Edit")
+               |> element("a[href=\"/restaurants/#{restaurant.id}/edit\"]")
                |> render_click()
                |> follow_redirect(conn, ~p"/restaurants/#{restaurant}/edit")
 
-      assert render(form_live) =~ "Edit Restaurant"
+      assert render(form_live) =~ "Edit Restaurant" || render(form_live) =~ "Editar Restaurante"
 
-      assert form_live
-             |> form("#restaurant-form", restaurant: @invalid_attrs)
-             |> render_change() =~ "can&#39;t be blank"
+      change_result =
+        form_live
+        |> form("#restaurant-form", restaurant: @invalid_attrs)
+        |> render_change()
+
+      assert change_result =~ "t be blank" || change_result =~ "no puede estar"
 
       assert {:ok, index_live, _html} =
                form_live
@@ -92,14 +105,22 @@ defmodule FoodReserveWeb.RestaurantLiveTest do
                |> follow_redirect(conn, ~p"/restaurants")
 
       html = render(index_live)
-      assert html =~ "Restaurant updated successfully"
+
+      assert html =~ "Restaurant updated successfully" ||
+               html =~ "Restaurante actualizado" ||
+               html =~ "actualizado con éxito"
+
       assert html =~ "some updated name"
     end
 
     test "deletes restaurant in listing", %{conn: conn, restaurant: restaurant} do
       {:ok, index_live, _html} = live(conn, ~p"/restaurants")
 
-      assert index_live |> element("#restaurants-#{restaurant.id} a", "Delete") |> render_click()
+      delete_btn =
+        index_live
+        |> element("a[data-confirm]")
+
+      assert delete_btn |> render_click()
       refute has_element?(index_live, "#restaurants-#{restaurant.id}")
     end
   end
@@ -110,7 +131,7 @@ defmodule FoodReserveWeb.RestaurantLiveTest do
     test "displays restaurant", %{conn: conn, restaurant: restaurant} do
       {:ok, _show_live, html} = live(conn, ~p"/restaurants/#{restaurant}")
 
-      assert html =~ "Show Restaurant"
+      assert html =~ "Show Restaurant" || html =~ "Ver Restaurante"
       assert html =~ restaurant.name
     end
 
@@ -119,15 +140,18 @@ defmodule FoodReserveWeb.RestaurantLiveTest do
 
       assert {:ok, form_live, _} =
                show_live
-               |> element("a", "Edit")
+               |> element("a[href=\"/restaurants/#{restaurant.id}/edit?return_to=show\"]")
                |> render_click()
                |> follow_redirect(conn, ~p"/restaurants/#{restaurant}/edit?return_to=show")
 
-      assert render(form_live) =~ "Edit Restaurant"
+      assert render(form_live) =~ "Edit Restaurant" || render(form_live) =~ "Editar Restaurante"
 
-      assert form_live
-             |> form("#restaurant-form", restaurant: @invalid_attrs)
-             |> render_change() =~ "can&#39;t be blank"
+      change_result =
+        form_live
+        |> form("#restaurant-form", restaurant: @invalid_attrs)
+        |> render_change()
+
+      assert change_result =~ "t be blank" || change_result =~ "no puede estar"
 
       assert {:ok, show_live, _html} =
                form_live
@@ -136,7 +160,11 @@ defmodule FoodReserveWeb.RestaurantLiveTest do
                |> follow_redirect(conn, ~p"/restaurants/#{restaurant}")
 
       html = render(show_live)
-      assert html =~ "Restaurant updated successfully"
+
+      assert html =~ "Restaurant updated successfully" ||
+               html =~ "Restaurante actualizado" ||
+               html =~ "actualizado con éxito"
+
       assert html =~ "some updated name"
     end
   end

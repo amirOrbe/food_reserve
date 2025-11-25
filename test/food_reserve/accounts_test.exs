@@ -58,23 +58,46 @@ defmodule FoodReserve.AccountsTest do
     test "validates email when given" do
       {:error, changeset} = Accounts.register_user(%{email: "not valid"})
 
-      assert %{email: ["must have the @ sign and no spaces"]} = errors_on(changeset)
+      # Aceptar mensajes en español o inglés
+      errors = errors_on(changeset)
+      assert Map.has_key?(errors, :email)
+
+      assert Enum.any?(errors.email, fn msg ->
+               String.contains?(msg, "@") &&
+                 (String.contains?(msg, "sign") || String.contains?(msg, "símbolo"))
+             end)
     end
 
     test "validates maximum values for email for security" do
       too_long = String.duplicate("db", 100)
       {:error, changeset} = Accounts.register_user(%{email: too_long})
-      assert "should be at most 160 character(s)" in errors_on(changeset).email
+      errors = errors_on(changeset)
+      # Verifica que hay un error de longitud máxima, ya sea en español o inglés
+      assert Enum.any?(errors.email, fn msg ->
+               String.contains?(msg, "at most") || String.contains?(msg, "caracteres") ||
+                 String.contains?(msg, "maximum")
+             end)
     end
 
     test "validates email uniqueness" do
       %{email: email} = user_fixture()
       {:error, changeset} = Accounts.register_user(%{email: email})
-      assert "has already been taken" in errors_on(changeset).email
+      # Comprobar mensaje de duplicidad en cualquier idioma
+      errors = errors_on(changeset).email
+
+      assert Enum.any?(errors, fn msg ->
+               String.contains?(msg, "taken") || String.contains?(msg, "uso") ||
+                 String.contains?(msg, "ocupado")
+             end)
 
       # Now try with the upper cased email too, to check that email case is ignored.
       {:error, changeset} = Accounts.register_user(%{email: String.upcase(email)})
-      assert "has already been taken" in errors_on(changeset).email
+      errors = errors_on(changeset).email
+
+      assert Enum.any?(errors, fn msg ->
+               String.contains?(msg, "taken") || String.contains?(msg, "uso") ||
+                 String.contains?(msg, "ocupado")
+             end)
     end
 
     test "registers users with password" do

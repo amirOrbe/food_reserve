@@ -188,7 +188,24 @@ defmodule FoodReserve.Restaurants do
   # Working Hours functions
 
   @doc """
-  Returns the list of working hours for a restaurant owned by the user.
+  Returns the list of all working hours for restaurants owned by the user.
+
+  ## Examples
+
+      iex> list_working_hours(scope)
+      [%WorkingHour{}, ...]
+  """
+  def list_working_hours(%Scope{} = scope) do
+    from(wh in WorkingHour,
+      join: r in assoc(wh, :restaurant),
+      where: r.user_id == ^scope.user.id,
+      order_by: [asc: wh.day_of_week]
+    )
+    |> Repo.all()
+  end
+
+  @doc """
+  Returns the list of working hours for a restaurant that a user owns.
 
   ## Examples
 
@@ -259,20 +276,49 @@ defmodule FoodReserve.Restaurants do
     # Verificar que el restaurante pertenece al usuario
     restaurant = get_restaurant!(scope, restaurant_id)
 
-    attrs = Map.put(attrs, "restaurant_id", restaurant.id)
-    day_of_week = attrs["day_of_week"]
+    # Verificar que day_of_week está presente
+    day_of_week = attrs["day_of_week"] || Map.get(attrs, :day_of_week)
 
-    case Repo.get_by(WorkingHour, restaurant_id: restaurant.id, day_of_week: day_of_week) do
-      nil ->
+    if day_of_week == nil do
+      # Si day_of_week es nil, devolver error
+      changeset =
         %WorkingHour{}
-        |> WorkingHour.changeset(attrs)
-        |> Repo.insert()
+        |> WorkingHour.changeset(Map.put(attrs, "restaurant_id", restaurant.id))
 
-      existing_hour ->
-        existing_hour
-        |> WorkingHour.changeset(attrs)
-        |> Repo.update()
+      {:error, changeset}
+    else
+      attrs = Map.put(attrs, "restaurant_id", restaurant.id)
+
+      case Repo.get_by(WorkingHour, restaurant_id: restaurant.id, day_of_week: day_of_week) do
+        nil ->
+          %WorkingHour{}
+          |> WorkingHour.changeset(attrs)
+          |> Repo.insert()
+
+        existing_hour ->
+          existing_hour
+          |> WorkingHour.changeset(attrs)
+          |> Repo.update()
+      end
     end
+  end
+
+  @doc """
+  Gets a single working_hour by id.
+
+  ## Examples
+
+      iex> get_working_hour!(scope, 123)
+      %WorkingHour{}
+
+  Raises `Ecto.NoResultsError` if the working hour does not exist or does not belong to user's restaurant.
+  """
+  def get_working_hour!(%Scope{} = scope, id) do
+    from(wh in WorkingHour,
+      join: r in assoc(wh, :restaurant),
+      where: wh.id == ^id and r.user_id == ^scope.user.id
+    )
+    |> Repo.one!()
   end
 
   @doc """
@@ -288,5 +334,20 @@ defmodule FoodReserve.Restaurants do
     _restaurant = get_restaurant!(scope, working_hour.restaurant_id)
 
     Repo.delete(working_hour)
+  end
+
+  @doc """
+  Returns a working_hour changeset.
+
+  ## Examples
+
+      iex> change_working_hour(scope, working_hour)
+      %Ecto.Changeset{}
+  """
+  def change_working_hour(%Scope{} = scope, %WorkingHour{} = working_hour, attrs \\ %{}) do
+    # Verificar que el horario pertenece a un restaurante del usuario
+    _restaurant = get_restaurant!(scope, working_hour.restaurant_id)
+
+    WorkingHour.changeset(working_hour, attrs)
   end
 end
