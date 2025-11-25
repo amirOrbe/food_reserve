@@ -70,9 +70,12 @@ defmodule FoodReserveWeb.Router do
       # Reservation routes (for customers)
       live "/restaurants/:restaurant_id/reserve", ReservationLive.New, :new
       live "/my-reservations", ReservationLive.Index, :index
-    end
+      live "/restaurants/:restaurant_id/reservations", ReservationLive.Manage, :index
+      live "/restaurants/:restaurant_id/review", ReviewLive.New, :new
+      live "/notifications", NotificationLive.Index, :index
 
-    post "/users/update-password", UserSessionController, :update_password
+      post "/users/update-password", UserSessionController, :update_password
+    end
   end
 
   scope "/", FoodReserveWeb do

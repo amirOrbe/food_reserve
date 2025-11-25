@@ -10,6 +10,8 @@ defmodule FoodReserve.Restaurants.Restaurant do
     field :cuisine_type, :string
     belongs_to :user, FoodReserve.Accounts.User, foreign_key: :user_id
 
+    has_many :reviews, FoodReserve.Reviews.Review
+
     timestamps(type: :utc_datetime)
   end
 

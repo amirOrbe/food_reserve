@@ -14,6 +14,9 @@ defmodule FoodReserve.Accounts.User do
     field :confirmed_at, :utc_datetime
     field :authenticated_at, :utc_datetime, virtual: true
 
+    has_many :reviews, FoodReserve.Reviews.Review
+    has_many :notifications, FoodReserve.Notifications.Notification
+
     timestamps(type: :utc_datetime)
   end
 

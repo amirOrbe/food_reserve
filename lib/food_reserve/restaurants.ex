@@ -285,7 +285,7 @@ defmodule FoodReserve.Restaurants do
   """
   def delete_working_hour(%Scope{} = scope, %WorkingHour{} = working_hour) do
     # Verificar que el horario pertenece a un restaurante del usuario
-    restaurant = get_restaurant!(scope, working_hour.restaurant_id)
+    _restaurant = get_restaurant!(scope, working_hour.restaurant_id)
 
     Repo.delete(working_hour)
   end

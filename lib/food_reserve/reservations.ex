@@ -8,6 +8,7 @@ defmodule FoodReserve.Reservations do
   alias FoodReserve.Reservations.Reservation
   alias FoodReserve.Restaurants
   alias FoodReserve.Accounts.Scope
+  alias FoodReserve.Notifications
 
   @doc """
   Subscribes to scoped notifications about any reservation changes.
@@ -80,6 +81,12 @@ defmodule FoodReserve.Reservations do
            |> Reservation.changeset(attrs)
            |> Repo.insert() do
       broadcast_reservation(scope, {:created, reservation})
+
+      # Crear notificación para el dueño del restaurante
+      Task.start(fn ->
+        Notifications.notify_new_reservation(reservation)
+      end)
+
       {:ok, reservation}
     end
   end
@@ -292,16 +299,31 @@ defmodule FoodReserve.Reservations do
       {:ok, %Reservation{}}
   """
   def confirm_reservation(%Scope{} = scope, reservation_id) do
-    # Verificar que el usuario sea dueño del restaurante de la reserva y actualizar directamente
-    from(r in Reservation,
-      join: restaurant in assoc(r, :restaurant),
-      where: r.id == ^reservation_id,
-      where: restaurant.user_id == ^scope.user.id
-    )
-    |> Repo.update_all(set: [status: "confirmed", updated_at: DateTime.utc_now()])
-    |> case do
-      {1, _} -> {:ok, :updated}
-      {0, _} -> {:error, :not_found}
+    # Obtener la reserva completa para verificar permisos y enviar notificación
+    case from(r in Reservation,
+           join: restaurant in assoc(r, :restaurant),
+           where: r.id == ^reservation_id,
+           where: restaurant.user_id == ^scope.user.id,
+           preload: [:restaurant]
+         )
+         |> Repo.one() do
+      nil ->
+        {:error, :not_found}
+
+      reservation ->
+        # Actualizar directamente el estado sin validaciones adicionales
+        case Repo.update(Ecto.Changeset.change(reservation, status: "confirmed")) do
+          {:ok, updated_reservation} ->
+            # Crear notificación para el cliente
+            Task.start(fn ->
+              Notifications.notify_reservation_confirmed(updated_reservation)
+            end)
+
+            {:ok, :updated}
+
+          {:error, changeset} ->
+            {:error, changeset}
+        end
     end
   end
 
@@ -314,26 +336,31 @@ defmodule FoodReserve.Reservations do
       {:ok, %Reservation{}}
   """
   def decline_reservation(%Scope{} = scope, reservation_id) do
-    # Verificar que el usuario sea dueño del restaurante de la reserva y actualizar directamente
-    from(r in Reservation,
-      join: restaurant in assoc(r, :restaurant),
-      where: r.id == ^reservation_id,
-      where: restaurant.user_id == ^scope.user.id
-    )
-    |> Repo.update_all(set: [status: "cancelled", updated_at: DateTime.utc_now()])
-    |> case do
-      {1, _} -> {:ok, :updated}
-      {0, _} -> {:error, :not_found}
-    end
-  end
+    # Obtener la reserva completa para verificar permisos y enviar notificación
+    case from(r in Reservation,
+           join: restaurant in assoc(r, :restaurant),
+           where: r.id == ^reservation_id,
+           where: restaurant.user_id == ^scope.user.id,
+           preload: [:restaurant]
+         )
+         |> Repo.one() do
+      nil ->
+        {:error, :not_found}
 
-  defp get_full_reservation_for_owner!(%Scope{} = scope, reservation_id) do
-    from(r in Reservation,
-      join: restaurant in assoc(r, :restaurant),
-      where: r.id == ^reservation_id,
-      where: restaurant.user_id == ^scope.user.id,
-      preload: [:restaurant]
-    )
-    |> Repo.one!()
+      reservation ->
+        # Actualizar directamente el estado sin validaciones adicionales
+        case Repo.update(Ecto.Changeset.change(reservation, status: "cancelled")) do
+          {:ok, updated_reservation} ->
+            # Crear notificación para el cliente
+            Task.start(fn ->
+              Notifications.notify_reservation_declined(updated_reservation)
+            end)
+
+            {:ok, :updated}
+
+          {:error, changeset} ->
+            {:error, changeset}
+        end
+    end
   end
 end

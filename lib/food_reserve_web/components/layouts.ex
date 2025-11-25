@@ -31,6 +31,10 @@ defmodule FoodReserveWeb.Layouts do
     default: nil,
     doc: "the current [scope](https://hexdocs.pm/phoenix/scopes.html)"
 
+  attr :unread_notifications_count, :integer,
+    default: 0,
+    doc: "the count of unread notifications for the current user"
+
   slot :inner_block, required: true
 
   def app(assigns) do
@@ -74,6 +78,17 @@ defmodule FoodReserveWeb.Layouts do
                     class="block px-4 py-2 text-gray-800 hover:bg-orange-100 rounded-t-lg"
                   >
                     Mis Restaurantes
+                  </.link>
+                  <.link
+                    navigate={~p"/notifications"}
+                    class="flex items-center justify-between px-4 py-2 text-gray-800 hover:bg-orange-100"
+                  >
+                    <span>Notificaciones</span>
+                    <%= if assigns[:unread_notifications_count] && @unread_notifications_count > 0 do %>
+                      <span class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
+                        {@unread_notifications_count}
+                      </span>
+                    <% end %>
                   </.link>
                   <.link
                     navigate={~p"/users/settings"}

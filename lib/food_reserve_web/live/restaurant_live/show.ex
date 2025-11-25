@@ -3,6 +3,7 @@ defmodule FoodReserveWeb.RestaurantLive.Show do
 
   alias FoodReserve.Restaurants
   alias FoodReserve.Menus
+  alias FoodReserve.Reviews
 
   @impl true
   def render(assigns) do
@@ -52,27 +53,24 @@ defmodule FoodReserveWeb.RestaurantLive.Show do
                       Editar
                     </.link>
                   <% else %>
-                    <!-- Botón para clientes -->
-                    <.link
-                      navigate={~p"/restaurants/#{@restaurant}/reserve"}
-                      class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
-                    >
-                      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4h3a2 2 0 012 2v1a2 2 0 01-2 2H6a2 2 0 01-2-2V9a2 2 0 012-2h2z"
-                        />
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M16 11v6a2 2 0 01-2 2H10a2 2 0 01-2-2v-6"
-                        />
-                      </svg>
-                      Hacer Reserva
-                    </.link>
+                    <!-- Botones para clientes -->
+                    <div class="flex flex-col sm:flex-row gap-3">
+                      <.link
+                        navigate={~p"/restaurants/#{@restaurant}/reserve"}
+                        class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
+                      >
+                        <.icon name="hero-calendar-days" class="w-4 h-4 mr-2" /> Hacer Reserva
+                      </.link>
+
+                      <%= if @can_review do %>
+                        <.link
+                          navigate={~p"/restaurants/#{@restaurant}/review"}
+                          class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors duration-200"
+                        >
+                          <.icon name="hero-star" class="w-4 h-4 mr-2" /> Calificar
+                        </.link>
+                      <% end %>
+                    </div>
                   <% end %>
                 <% else %>
                   <!-- Botón para usuarios no autenticados -->
@@ -311,6 +309,229 @@ defmodule FoodReserveWeb.RestaurantLive.Show do
             <% end %>
           </div>
         </div>
+        
+    <!-- Sección de Reseñas -->
+        <div class="bg-white shadow-sm rounded-lg border border-gray-200 mt-6">
+          <div class="px-6 py-8 sm:px-8">
+            <div class="flex items-center justify-between mb-6">
+              <h2 class="text-xl font-semibold text-gray-900">Reseñas y Calificaciones</h2>
+              <%= if @review_stats.total_reviews > 0 do %>
+                <div class="flex items-center">
+                  <div class="flex items-center mr-3">
+                    <%= for i <- 1..5 do %>
+                      <.icon
+                        name="hero-star"
+                        class={
+                          Enum.join(
+                            [
+                              "w-5 h-5",
+                              if(i <= @review_stats.average_overall_rating,
+                                do: "text-yellow-400",
+                                else: "text-gray-300"
+                              )
+                            ],
+                            " "
+                          )
+                        }
+                      />
+                    <% end %>
+                  </div>
+                  <span class="text-lg font-bold text-gray-900 mr-2">
+                    {@review_stats.average_overall_rating}
+                  </span>
+                  <span class="text-sm text-gray-600">
+                    ({@review_stats.total_reviews} {if @review_stats.total_reviews == 1,
+                      do: "reseña",
+                      else: "reseñas"})
+                  </span>
+                </div>
+              <% end %>
+            </div>
+
+            <%= if @review_stats.total_reviews > 0 do %>
+              <!-- Estadísticas detalladas -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 p-4 bg-gray-50 rounded-lg">
+                <div class="text-center">
+                  <div class="text-2xl font-bold text-orange-600">
+                    {@review_stats.average_food_rating}
+                  </div>
+                  <div class="text-sm text-gray-600">Comida</div>
+                  <div class="flex justify-center mt-1">
+                    <%= for i <- 1..5 do %>
+                      <.icon
+                        name="hero-star"
+                        class={
+                          Enum.join(
+                            [
+                              "w-4 h-4",
+                              if(i <= @review_stats.average_food_rating,
+                                do: "text-orange-400",
+                                else: "text-gray-300"
+                              )
+                            ],
+                            " "
+                          )
+                        }
+                      />
+                    <% end %>
+                  </div>
+                  <!-- ... -->
+                  <div class="text-sm text-gray-600">Servicio</div>
+                  <div class="flex justify-center mt-1">
+                    <%= for i <- 1..5 do %>
+                      <.icon
+                        name="hero-star"
+                        class={
+                          Enum.join(
+                            [
+                              "w-4 h-4",
+                              if(i <= @review_stats.average_service_rating,
+                                do: "text-blue-400",
+                                else: "text-gray-300"
+                              )
+                            ],
+                            " "
+                          )
+                        }
+                      />
+                    <% end %>
+                  </div>
+                </div>
+                <div class="text-center">
+                  <div class="text-2xl font-bold text-blue-600">
+                    {@review_stats.average_service_rating}
+                  </div>
+                  <div class="text-sm text-gray-600">Servicio</div>
+                  <div class="flex justify-center mt-1">
+                    <%= for i <- 1..5 do %>
+                      <.icon
+                        name="hero-star"
+                        class={
+                          Enum.join(
+                            [
+                              "w-4 h-4",
+                              if(i <= @review_stats.average_service_rating,
+                                do: "text-blue-400",
+                                else: "text-gray-300"
+                              )
+                            ],
+                            " "
+                          )
+                        }
+                      />
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+              
+    <!-- Lista de reseñas -->
+              <div class="space-y-6">
+                <%= for review <- @reviews do %>
+                  <div class="border-b border-gray-200 pb-6 last:border-b-0">
+                    <div class="flex items-start justify-between mb-3">
+                      <div class="flex items-center">
+                        <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center mr-3">
+                          <span class="text-sm font-medium text-gray-700">
+                            {String.first(review.user.name)}
+                          </span>
+                        </div>
+                        <div>
+                          <div class="font-medium text-gray-900">{review.user.name}</div>
+                          <div class="text-sm text-gray-500">
+                            {Calendar.strftime(review.inserted_at, "%d/%m/%Y")}
+                          </div>
+                        </div>
+                      </div>
+                      <div class="flex items-center">
+                        <span class="text-lg font-bold text-gray-900 mr-2">
+                          {Float.round((review.food_rating + review.service_rating) / 2, 1)}
+                        </span>
+                        <div class="flex">
+                          <%= for i <- 1..5 do %>
+                            <.icon
+                              name="hero-star"
+                              class={
+                                Enum.join(
+                                  [
+                                    "w-4 h-4",
+                                    if(i <= (review.food_rating + review.service_rating) / 2,
+                                      do: "text-yellow-400",
+                                      else: "text-gray-300"
+                                    )
+                                  ],
+                                  " "
+                                )
+                              }
+                            />
+                          <% end %>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="flex gap-4 mb-3 text-sm">
+                      <div class="flex items-center">
+                        <span class="text-gray-600 mr-1">Comida:</span>
+                        <div class="flex">
+                          <%= for i <- 1..5 do %>
+                            <.icon
+                              name="hero-star"
+                              class={
+                                Enum.join(
+                                  [
+                                    "w-3 h-3",
+                                    if(i <= review.food_rating,
+                                      do: "text-orange-400",
+                                      else: "text-gray-300"
+                                    )
+                                  ],
+                                  " "
+                                )
+                              }
+                            />
+                          <% end %>
+                        </div>
+                        <span class="ml-1 text-gray-900">{review.food_rating}</span>
+                      </div>
+                      <div class="flex items-center">
+                        <span class="text-gray-600 mr-1">Servicio:</span>
+                        <div class="flex">
+                          <%= for i <- 1..5 do %>
+                            <.icon
+                              name="hero-star"
+                              class={
+                                Enum.join(
+                                  [
+                                    "w-3 h-3",
+                                    if(i <= review.service_rating,
+                                      do: "text-blue-400",
+                                      else: "text-gray-300"
+                                    )
+                                  ],
+                                  " "
+                                )
+                              }
+                            />
+                          <% end %>
+                        </div>
+                        <span class="ml-1 text-gray-900">{review.service_rating}</span>
+                      </div>
+                    </div>
+
+                    <%= if review.comment && review.comment != "" do %>
+                      <p class="text-gray-700 leading-relaxed">{review.comment}</p>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+            <% else %>
+              <div class="text-center py-12">
+                <.icon name="hero-star" class="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Aún no hay reseñas</h3>
+                <p class="text-gray-600">Sé el primero en calificar este restaurante.</p>
+              </div>
+            <% end %>
+          </div>
+        </div>
       </div>
     </Layouts.app>
     """
@@ -321,6 +542,16 @@ defmodule FoodReserveWeb.RestaurantLive.Show do
     restaurant = Restaurants.get_public_restaurant!(id)
     menu_items = Menus.list_menu_items_by_restaurant(restaurant.id)
     working_hours = Restaurants.get_public_working_hours(restaurant.id)
+    reviews = Reviews.list_restaurant_reviews(restaurant.id)
+    review_stats = Reviews.get_restaurant_review_stats(restaurant.id)
+
+    # Verificar si el usuario puede dejar una reseña
+    can_review =
+      if socket.assigns.current_scope do
+        Reviews.can_user_review_restaurant?(socket.assigns.current_scope, restaurant.id)
+      else
+        false
+      end
 
     # Solo suscribirse si el usuario está autenticado y es el dueño del restaurante
     if connected?(socket) && socket.assigns.current_scope &&
@@ -335,7 +566,10 @@ defmodule FoodReserveWeb.RestaurantLive.Show do
      |> assign(:restaurant, restaurant)
      |> assign(:menu_items, menu_items)
      |> assign(:grouped_menu_items, group_menu_items_by_category(menu_items))
-     |> assign(:working_hours, working_hours)}
+     |> assign(:working_hours, working_hours)
+     |> assign(:reviews, reviews)
+     |> assign(:review_stats, review_stats)
+     |> assign(:can_review, can_review)}
   end
 
   @impl true

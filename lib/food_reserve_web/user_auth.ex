@@ -6,6 +6,7 @@ defmodule FoodReserveWeb.UserAuth do
 
   alias FoodReserve.Accounts
   alias FoodReserve.Accounts.Scope
+  alias FoodReserve.Notifications
 
   # Make the remember me cookie valid for 14 days. This should match
   # the session validity setting in UserToken.
@@ -268,13 +269,23 @@ defmodule FoodReserveWeb.UserAuth do
   end
 
   defp mount_current_scope(socket, session) do
-    Phoenix.Component.assign_new(socket, :current_scope, fn ->
-      {user, _} =
-        if user_token = session["user_token"] do
-          Accounts.get_user_by_session_token(user_token)
-        end || {nil, nil}
+    socket =
+      Phoenix.Component.assign_new(socket, :current_scope, fn ->
+        {user, _} =
+          if user_token = session["user_token"] do
+            Accounts.get_user_by_session_token(user_token)
+          end || {nil, nil}
 
-      Scope.for_user(user)
+        Scope.for_user(user)
+      end)
+
+    # Agregar contador de notificaciones no leídas si el usuario está autenticado
+    Phoenix.Component.assign_new(socket, :unread_notifications_count, fn ->
+      if socket.assigns.current_scope && socket.assigns.current_scope.user do
+        Notifications.count_unread_notifications(socket.assigns.current_scope)
+      else
+        0
+      end
     end)
   end
 
