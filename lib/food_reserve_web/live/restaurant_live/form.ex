@@ -8,22 +8,106 @@ defmodule FoodReserveWeb.RestaurantLive.Form do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
-      <.header>
-        {@page_title}
-        <:subtitle>Usa este formulario para gestionar la información de tu restaurante.</:subtitle>
-      </.header>
+      <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="bg-white shadow-sm rounded-lg border border-gray-200">
+          <div class="px-6 py-8 sm:px-8">
+            <div class="mb-8">
+              <.header>
+                {@page_title}
+                <:subtitle>
+                  Usa este formulario para gestionar la información de tu restaurante.
+                </:subtitle>
+              </.header>
+            </div>
 
-      <.form for={@form} id="restaurant-form" phx-change="validate" phx-submit="save">
-        <.input field={@form[:name]} type="text" label="Nombre" />
-        <.input field={@form[:description]} type="textarea" label="Descripción" />
-        <.input field={@form[:address]} type="text" label="Dirección" />
-        <.input field={@form[:phone_number]} type="text" label="Número de Teléfono" />
-        <.input field={@form[:cuisine_type]} type="text" label="Tipo de Cocina" />
-        <footer>
-          <.button phx-disable-with="Guardando..." variant="primary">Guardar Restaurante</.button>
-          <.button navigate={return_path(@current_scope, @return_to, @restaurant)}>Cancelar</.button>
-        </footer>
-      </.form>
+            <.form
+              for={@form}
+              id="restaurant-form"
+              phx-change="validate"
+              phx-submit="save"
+              class="space-y-6"
+            >
+              <div class="grid grid-cols-1 gap-6">
+                <.input
+                  field={@form[:name]}
+                  type="text"
+                  label="Nombre del Restaurante"
+                  placeholder="Ej: La Cocina de María"
+                  class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                />
+
+                <.input
+                  field={@form[:description]}
+                  type="textarea"
+                  label="Descripción"
+                  placeholder="Describe tu restaurante, especialidades, ambiente..."
+                  rows="4"
+                  class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                />
+
+                <.input
+                  field={@form[:address]}
+                  type="text"
+                  label="Dirección Completa"
+                  placeholder="Calle, número, colonia, ciudad"
+                  class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                />
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <.input
+                    field={@form[:phone_number]}
+                    type="tel"
+                    label="Teléfono"
+                    placeholder="(55) 1234-5678"
+                    class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                  />
+
+                  <.input
+                    field={@form[:cuisine_type]}
+                    type="text"
+                    label="Tipo de Cocina"
+                    placeholder="Ej: Mexicana, Italiana, Asiática"
+                    class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                  />
+                </div>
+              </div>
+
+              <div class="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-200">
+                <button
+                  type="submit"
+                  phx-disable-with="Guardando..."
+                  class="flex-1 sm:flex-none inline-flex justify-center items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                >
+                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                  Guardar Restaurante
+                </button>
+
+                <.link
+                  navigate={return_path(@current_scope, @return_to, @restaurant)}
+                  class="flex-1 sm:flex-none inline-flex justify-center items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors duration-200"
+                >
+                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                  Cancelar
+                </.link>
+              </div>
+            </.form>
+          </div>
+        </div>
+      </div>
     </Layouts.app>
     """
   end

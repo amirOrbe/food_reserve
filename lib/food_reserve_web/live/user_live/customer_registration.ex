@@ -8,9 +8,9 @@ defmodule FoodReserveWeb.UserLive.CustomerRegistration do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
-      <div class="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-md w-full mx-auto">
-          <div class="bg-white p-8 rounded-2xl shadow-lg">
+      <div class="min-h-screen bg-gray-50 flex items-center justify-center py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-sm sm:max-w-md w-full mx-auto">
+          <div class="bg-white p-6 sm:p-8 rounded-xl sm:rounded-2xl shadow-lg">
             <div class="text-center mb-6">
               <.header>
                 Registro de Cliente
@@ -36,8 +36,8 @@ defmodule FoodReserveWeb.UserLive.CustomerRegistration do
                 <button
                   type="submit"
                   phx-disable-with="Creando cuenta..."
-                  class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg"
-                  style="background-color: #2563eb; color: white; padding: 12px 16px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; width: 100%;"
+                  class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 sm:py-3 px-4 rounded-lg text-sm sm:text-base"
+                  style="background-color: #2563eb; color: white; padding: 10px 16px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; width: 100%;"
                 >
                   Crear cuenta de cliente
                 </button>

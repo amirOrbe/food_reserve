@@ -15,25 +15,35 @@ defmodule FoodReserveWeb.UserLive.RoleSelection do
           </div>
         </div>
 
-        <div class="relative max-w-4xl mx-auto px-6 py-16">
+        <div class="relative max-w-3xl mx-auto px-6 sm:px-8 py-8 sm:py-12 lg:py-16">
           
     <!-- Header -->
-          <div class="text-center mb-20">
-            <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl mb-8 shadow-lg">
-              <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M8.1,13.34L3.91,9.16C2.35,7.59 2.35,5.06 3.91,3.5L10.93,10.5L8.1,13.34M13.41,13L20.29,19.88L18.88,21.29L12,14.41L5.12,21.29L3.71,19.88L13.36,10.22L13.16,10C12.38,9.23 12.38,7.97 13.16,7.19L17.5,2.82L18.43,3.74L15.19,7L16.15,7.94L19.39,4.69L20.32,5.61L15.91,10.02C15.13,10.8 13.87,10.8 13.09,10.02L13.41,13Z" />
+          <div class="text-center mb-12 sm:mb-16 lg:mb-20">
+            <div class="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl sm:rounded-2xl mb-6 sm:mb-8 shadow-lg">
+              <svg
+                class="w-6 h-6 sm:w-8 sm:h-8 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                />
               </svg>
             </div>
-            <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 px-4">
               ¡Bienvenido a Food Reserve!
             </h1>
-            <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p class="text-base sm:text-lg lg:text-xl text-gray-600 max-w-2xl mx-auto px-4">
               Elige cómo quieres comenzar tu experiencia culinaria
             </p>
           </div>
           
     <!-- Options -->
-          <div class="grid md:grid-cols-2 gap-6 mb-12 max-w-3xl mx-auto">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 sm:mb-12 max-w-2xl mx-auto">
             
     <!-- Cliente -->
             <div
@@ -41,18 +51,18 @@ defmodule FoodReserveWeb.UserLive.RoleSelection do
               phx-click="select_role"
               phx-value-role="customer"
             >
-              <div class="relative bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100">
+              <div class="relative bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-50">
                 
     <!-- Background gradient on hover -->
                 <div class="absolute inset-0 bg-gradient-to-br from-blue-50 to-blue-100 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                 </div>
                 
     <!-- Content -->
-                <div class="relative z-10">
+                <div class="relative z-10 text-center">
                   <!-- Icon -->
-                  <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl mb-4 shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300">
+                  <div class="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-blue-50 rounded-lg sm:rounded-xl mb-3 sm:mb-4 shadow-sm group-hover:shadow-md group-hover:scale-110 transition-all duration-300">
                     <svg
-                      class="w-10 h-10 text-white"
+                      class="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 text-blue-600"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -126,18 +136,18 @@ defmodule FoodReserveWeb.UserLive.RoleSelection do
               phx-click="select_role"
               phx-value-role="restaurant_owner"
             >
-              <div class="relative bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100">
+              <div class="relative bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-50">
                 
     <!-- Background gradient on hover -->
                 <div class="absolute inset-0 bg-gradient-to-br from-orange-50 to-orange-100 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                 </div>
                 
     <!-- Content -->
-                <div class="relative z-10">
+                <div class="relative z-10 text-center">
                   <!-- Icon -->
-                  <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl mb-4 shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300">
+                  <div class="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-orange-50 rounded-lg sm:rounded-xl mb-3 sm:mb-4 shadow-sm group-hover:shadow-md group-hover:scale-110 transition-all duration-300">
                     <svg
-                      class="w-10 h-10 text-white"
+                      class="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 text-orange-600"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"

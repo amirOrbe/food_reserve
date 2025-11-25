@@ -4,9 +4,9 @@ defmodule FoodReserveWeb.UserLive.Login do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
-      <div class="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-md w-full mx-auto">
-          <div class="bg-white p-8 rounded-2xl shadow-lg">
+      <div class="min-h-screen bg-gray-50 flex items-center justify-center py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-sm sm:max-w-md w-full mx-auto">
+          <div class="bg-white p-6 sm:p-8 rounded-xl sm:rounded-2xl shadow-lg">
             <div class="text-center mb-6">
               <.header>
                 Iniciar Sesión
