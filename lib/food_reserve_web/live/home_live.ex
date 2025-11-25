@@ -179,8 +179,8 @@ defmodule FoodReserveWeb.HomeLive do
     if Enum.empty?(working_hours) do
       :unknown
     else
-      # Usar UTC y asumir zona horaria local para simplicidad
-      now = DateTime.utc_now()
+      # Ajustar a la zona horaria de Ciudad de México (UTC-6)
+      now = DateTime.utc_now() |> DateTime.add(-6, :hour)
       current_day = get_current_day_of_week(now)
       current_time = DateTime.to_time(now)
 

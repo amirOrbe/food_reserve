@@ -610,8 +610,7 @@ defmodule FoodReserveWeb.RestaurantLive.Show do
     if Enum.empty?(working_hours) do
       :unknown
     else
-      # Usar UTC y asumir zona horaria local para simplicidad
-      now = DateTime.utc_now()
+      now = DateTime.utc_now() |> DateTime.add(-6, :hour)
       current_day = get_current_day_of_week(now)
       current_time = DateTime.to_time(now)
 

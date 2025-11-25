@@ -312,6 +312,7 @@ defmodule FoodReserve.RestaurantsTest do
     test "upsert_working_hour/3 with invalid data returns error changeset" do
       scope = user_scope_fixture()
       restaurant = restaurant_fixture(scope)
+
       assert {:error, %Ecto.Changeset{}} =
                Restaurants.upsert_working_hour(scope, restaurant.id, %{
                  "day_of_week" => "invalid_day",
