@@ -72,6 +72,7 @@ defmodule FoodReserveWeb.Router do
       live "/restaurants/:restaurant_id/reserve", ReservationLive.New, :new
       live "/my-reservations", ReservationLive.Index, :index
       live "/restaurants/:restaurant_id/review", ReviewLive.New, :new
+      live "/reservations/:reservation_id/review", ReviewLive.Prompt, :show
       live "/notifications", NotificationLive.Index, :index
 
       # Order routes

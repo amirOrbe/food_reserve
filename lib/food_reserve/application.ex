@@ -12,6 +12,8 @@ defmodule FoodReserve.Application do
       FoodReserve.Repo,
       {DNSCluster, query: Application.get_env(:food_reserve, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: FoodReserve.PubSub},
+      # Review scheduler
+      FoodReserve.ReviewScheduler,
       # Start a worker by calling: FoodReserve.Worker.start_link(arg)
       # {FoodReserve.Worker, arg},
       # Start to serve requests, typically the last entry

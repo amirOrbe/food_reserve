@@ -154,6 +154,57 @@ defmodule FoodReserve.Reservations do
   end
 
   @doc """
+  Updates the status of a reservation.
+
+  ## Examples
+
+      iex> update_reservation_status(reservation, "confirmed")
+      {:ok, %Reservation{}}
+
+      iex> update_reservation_status(reservation, "invalid_status")
+      {:error, %Ecto.Changeset{}}
+  """
+  def update_reservation_status(%Reservation{} = reservation, status)
+      when status in ["pending", "confirmed", "cancelled", "completed"] do
+    reservation
+    |> Reservation.changeset(%{"status" => status})
+    |> Repo.update()
+  end
+
+  @doc """
+  Marks a reservation as cancelled.
+  """
+  def cancel_reservation(reservation_id, user_scope \\ nil) do
+    # If no scope is provided, get the reservation without validating permissions
+    reservation =
+      if user_scope do
+        get_reservation!(user_scope, reservation_id)
+      else
+        # Get directly without permission validation
+        Repo.get!(Reservation, reservation_id)
+      end
+
+    update_reservation_status(reservation, "cancelled")
+  end
+
+  @doc """
+  Marks a reservation as completed and sends notification to review the restaurant.
+  """
+  def complete_reservation_and_notify(reservation_id) do
+    # Get directly from repo to avoid permission validation
+    reservation = Repo.get!(Reservation, reservation_id) |> Repo.preload([:restaurant])
+
+    with {:ok, updated_reservation} <- update_reservation_status(reservation, "completed") do
+      # Send review reminder notification
+      Task.start(fn ->
+        FoodReserve.Notifications.notify_review_reminder(updated_reservation)
+      end)
+
+      {:ok, updated_reservation}
+    end
+  end
+
+  @doc """
   Returns the list of existing reservations for a specific restaurant and date.
 
   ## Examples

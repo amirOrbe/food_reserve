@@ -235,6 +235,12 @@ defmodule FoodReserveWeb.ReservationLive.Index do
 
                       <%= if reservation.status == "completed" do %>
                         <.link
+                          navigate={~p"/reservations/#{reservation.id}/review"}
+                          class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-yellow-600 hover:bg-yellow-700"
+                        >
+                          <.icon name="hero-star" class="w-4 h-4 mr-2" /> Calificar Restaurante
+                        </.link>
+                        <.link
                           navigate={~p"/restaurants/#{reservation.restaurant}/reserve"}
                           class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-green-600 hover:bg-green-700"
                         >
