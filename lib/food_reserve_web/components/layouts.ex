@@ -50,7 +50,7 @@ defmodule FoodReserveWeb.Layouts do
           <!-- Logo -->
           <div class="flex items-center">
             <a href="/" class="flex items-center gap-2 text-xl font-bold text-gray-800">
-              <img src={~p"/images/logo.svg"} width="32" />
+              <img src={~p"/images/logo.png"} width="64" />
               <span>FoodReserve</span>
             </a>
           </div>

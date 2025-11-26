@@ -206,10 +206,13 @@ defmodule FoodReserve.Orders do
           _ -> order.status
         end
 
+      formatted_time =
+        "#{reservation.reservation_time.hour}:#{String.pad_leading("#{reservation.reservation_time.minute}", 2, "0")}"
+
       attrs = %{
         title: "Actualización de pedido",
         message:
-          "Su pedido para la reservación del #{format_date(reservation.date)} ha sido actualizado a: #{status_message}",
+          "Su pedido para la reservación del #{format_date(reservation.reservation_date)} a las #{formatted_time} ha sido actualizado a: #{status_message}",
         type: "order_updated",
         user_id: reservation.user_id,
         restaurant_id: reservation.restaurant_id,
@@ -221,7 +224,7 @@ defmodule FoodReserve.Orders do
     end
   end
 
-  defp format_date(datetime) do
-    "#{datetime.day}/#{datetime.month}/#{datetime.year} a las #{datetime.hour}:#{String.pad_leading("#{datetime.minute}", 2, "0")}"
+  defp format_date(date) do
+    "#{date.day}/#{date.month}/#{date.year}"
   end
 end
