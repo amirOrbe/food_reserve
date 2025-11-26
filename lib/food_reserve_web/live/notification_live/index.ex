@@ -96,7 +96,7 @@ defmodule FoodReserveWeb.NotificationLive.Index do
                               phx-value-id={notification.id}
                               class="text-xs text-blue-600 hover:text-blue-800"
                             >
-                              Mark as read
+                              Marcar como leído
                             </button>
                           <% end %>
                         </div>
@@ -126,7 +126,7 @@ defmodule FoodReserveWeb.NotificationLive.Index do
                               class="inline-flex items-center text-xs text-orange-600 hover:text-orange-800"
                             >
                               <.icon name="hero-building-storefront" class="w-3 h-3 mr-1" />
-                              View restaurant
+                              Ver Restaurante
                             </.link>
                           </div>
                         <% end %>

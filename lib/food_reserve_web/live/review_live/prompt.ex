@@ -20,10 +20,10 @@ defmodule FoodReserveWeb.ReviewLive.Prompt do
             <div class="flex items-center justify-between mb-4">
               <div>
                 <h1 class="text-3xl font-bold text-gray-900 mb-2">
-                  How was your experience?
+                  ¿Cómo fue tu experiencia?
                 </h1>
                 <p class="text-gray-600">
-                  Help us improve by sharing your experience at
+                  Ayudanos a mejorar compartiendo tu experiencia en
                   <span class="font-medium">{@reservation.restaurant.name}</span>
                 </p>
               </div>
@@ -41,14 +41,13 @@ defmodule FoodReserveWeb.ReviewLive.Prompt do
               <.icon name="hero-information-circle" class="w-6 h-6 text-blue-500 mr-4 mt-1" />
               <div>
                 <h3 class="font-semibold text-gray-900 mb-2">
-                  Your opinion matters
+                  Tu opinión importa
                 </h3>
                 <p class="text-gray-600">
-                  Thank you for visiting
-                  <span class="font-medium">{@reservation.restaurant.name}</span>
-                  on <span class="font-medium"><%= Calendar.strftime(@reservation.reservation_date, "%d/%m/%Y") %></span>.
-                  We'd love to know what you thought of your experience. Your feedback helps other diners
-                  find great places to eat.
+                  Gracias por visitar <span class="font-medium">{@reservation.restaurant.name}</span>
+                  el <span class="font-medium"><%= Calendar.strftime(@reservation.reservation_date, "%d/%m/%Y") %></span>.
+                  Nos encantaría saber lo que pensaste de tu experiencia. Tu feedback nos ayuda a encontrar
+                  lugares geniales para comer.
                 </p>
               </div>
             </div>
@@ -59,10 +58,10 @@ defmodule FoodReserveWeb.ReviewLive.Prompt do
                 <div class="bg-green-50 border border-green-100 rounded-lg p-6 text-center">
                   <.icon name="hero-check-circle" class="w-12 h-12 text-green-500 mx-auto mb-4" />
                   <h3 class="text-lg font-medium text-green-800 mb-2">
-                    You've already reviewed this restaurant!
+                    Ya has calificado este restaurante!
                   </h3>
                   <p class="text-green-600 mb-6">
-                    Thank you for sharing your experience with other users.
+                    Gracias por compartir tu experiencia con otros usuarios.
                   </p>
 
                   <div class="flex flex-wrap justify-center gap-4">
@@ -77,7 +76,7 @@ defmodule FoodReserveWeb.ReviewLive.Prompt do
                       navigate={~p"/restaurants/#{@reservation.restaurant_id}"}
                       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-orange-600 hover:bg-orange-700"
                     >
-                      <.icon name="hero-arrow-right" class="w-4 h-4 mr-2" /> View restaurant
+                      <.icon name="hero-arrow-right" class="w-4 h-4 mr-2" /> Ver Restaurante
                     </.link>
                   </div>
                 </div>
@@ -89,12 +88,12 @@ defmodule FoodReserveWeb.ReviewLive.Prompt do
                       class="block"
                     >
                       <.icon name="hero-star" class="w-12 h-12 text-orange-500 mx-auto mb-4" />
-                      <h3 class="text-lg font-medium text-orange-800 mb-2">Leave a review</h3>
+                      <h3 class="text-lg font-medium text-orange-800 mb-2">Deja un review</h3>
                       <p class="text-orange-600 mb-4">
-                        Rate the food and service, and share your experience.
+                        Califica la comida y el servicio, y comparte tu experiencia.
                       </p>
                       <span class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-orange-600 hover:bg-orange-700">
-                        <.icon name="hero-pencil" class="w-4 h-4 mr-2" /> Rate now
+                        <.icon name="hero-pencil" class="w-4 h-4 mr-2" /> Calificar ahora
                       </span>
                     </.link>
                   </div>
@@ -102,12 +101,12 @@ defmodule FoodReserveWeb.ReviewLive.Prompt do
                   <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center hover:shadow-md transition-all">
                     <.link navigate={~p"/my-reservations"} class="block">
                       <.icon name="hero-clock" class="w-12 h-12 text-gray-500 mx-auto mb-4" />
-                      <h3 class="text-lg font-medium text-gray-800 mb-2">Rate later</h3>
+                      <h3 class="text-lg font-medium text-gray-800 mb-2">Calificar más tarde</h3>
                       <p class="text-gray-600 mb-4">
-                        You can come back later to rate your experience.
+                        Puedes volver más tarde para calificar tu experiencia.
                       </p>
                       <span class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50">
-                        <.icon name="hero-arrow-right" class="w-4 h-4 mr-2" /> Back to my reservations
+                        <.icon name="hero-arrow-right" class="w-4 h-4 mr-2" /> Volver a mis reservas
                       </span>
                     </.link>
                   </div>

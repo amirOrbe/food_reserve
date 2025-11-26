@@ -144,7 +144,6 @@ defmodule FoodReserveWeb.ReservationLive.Manage do
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                   <%= for reservation <- @filtered_reservations do %>
-                    <% IO.inspect(reservation, label: "RESERVATION STRUCTURE") %>
                     <tr class="hover:bg-gray-50">
                       <td class="px-6 py-4 whitespace-nowrap">
                         <div>
@@ -276,13 +275,7 @@ defmodule FoodReserveWeb.ReservationLive.Manage do
 
   @impl true
   def handle_event("confirm_reservation", params, socket) do
-    IO.puts("=== CONFIRM RESERVATION EVENT RECEIVED ===")
-    IO.inspect(params, label: "PARAMS")
-
-    # Extraer ID de los parámetros (puede venir como "id" o "value")
     id = params["id"] || params["value"] || ""
-    IO.puts("ID: #{id}")
-    IO.inspect(socket.assigns.current_scope.user, label: "USER")
 
     if id == "" or is_nil(id) do
       {:noreply, put_flash(socket, :error, "ID de reserva no válido")}
@@ -327,12 +320,7 @@ defmodule FoodReserveWeb.ReservationLive.Manage do
 
   @impl true
   def handle_event("decline_reservation", params, socket) do
-    IO.puts("=== DECLINE RESERVATION EVENT RECEIVED ===")
-    IO.inspect(params, label: "PARAMS")
-
-    # Extraer ID de los parámetros (puede venir como "id" o "value")
     id = params["id"] || params["value"] || ""
-    IO.puts("ID: #{id}")
 
     if id == "" or is_nil(id) do
       {:noreply, put_flash(socket, :error, "ID de reserva no válido")}
@@ -376,10 +364,7 @@ defmodule FoodReserveWeb.ReservationLive.Manage do
   end
 
   @impl true
-  def handle_event(event_name, params, socket) do
-    IO.puts("=== UNHANDLED EVENT ===")
-    IO.puts("Event: #{event_name}")
-    IO.inspect(params, label: "PARAMS")
+  def handle_event(_event_name, _params, socket) do
     {:noreply, socket}
   end
 

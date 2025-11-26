@@ -439,10 +439,6 @@ defmodule FoodReserveWeb.ReservationLive.Edit do
 
   @impl true
   def handle_event("party_size_changed", %{"reservation" => params}, socket) do
-    # This event is triggered when party_size changes
-    IO.inspect(params, label: "Party size changed: ")
-
-    # Process party_size explicitly
     params =
       if Map.has_key?(params, "party_size") and params["party_size"] != "" do
         Map.update(params, "party_size", nil, &parse_party_size/1)
@@ -460,10 +456,6 @@ defmodule FoodReserveWeb.ReservationLive.Edit do
 
   @impl true
   def handle_event("validate", %{"reservation" => params}, socket) do
-    # Add debug logging to see params
-    IO.inspect(params, label: "Params in validate event")
-
-    # Process party_size explicitly if present
     params =
       if Map.has_key?(params, "party_size") and params["party_size"] != "" do
         Map.update(params, "party_size", nil, &parse_party_size/1)
@@ -544,10 +536,6 @@ defmodule FoodReserveWeb.ReservationLive.Edit do
         )
       )
 
-    # Add debug logging to see params
-    IO.inspect(params, label: "Params in save event")
-
-    # Try to update the reservation
     case Reservations.update_reservation(
            socket.assigns.current_scope,
            socket.assigns.reservation,

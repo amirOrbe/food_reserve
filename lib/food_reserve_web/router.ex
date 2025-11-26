@@ -79,6 +79,10 @@ defmodule FoodReserveWeb.Router do
 
       # Order routes
       live "/reservations/:reservation_id/order", OrderLive.New, :new
+      live "/restaurants/:restaurant_id/pickup", OrderLive.PickupNew, :new
+      live "/my-orders", OrderLive.UserIndex, :index
+      live "/orders/:id", OrderLive.Show, :show
+      live "/orders/:id/edit", OrderLive.Edit, :edit
 
       post "/users/update-password", UserSessionController, :update_password
     end

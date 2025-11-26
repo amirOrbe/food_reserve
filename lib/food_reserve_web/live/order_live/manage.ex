@@ -29,76 +29,73 @@ defmodule FoodReserveWeb.OrderLive.Manage do
             
     <!-- Filter Controls -->
             <div class="mt-6">
-              <div class="flex flex-wrap gap-4">
-                <button
-                  phx-click="filter_status"
-                  phx-value-status="all"
-                  class={[
-                    "px-4 py-2 text-sm font-medium rounded-lg transition-colors",
-                    if(@filter_status == "all",
-                      do: "bg-orange-100 text-orange-800 border border-orange-200",
-                      else: "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    )
-                  ]}
-                >
-                  Todos
-                </button>
+              <div class="flex flex-wrap items-center gap-3">
+                <span class="text-sm font-medium text-gray-700 mr-2">Filtrar por:</span>
 
-                <button
-                  phx-click="filter_status"
-                  phx-value-status="pending"
-                  class={[
-                    "px-4 py-2 text-sm font-medium rounded-lg transition-colors",
-                    if(@filter_status == "pending",
-                      do: "bg-yellow-100 text-yellow-800 border border-yellow-200",
-                      else: "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    )
-                  ]}
-                >
-                  Pendientes
-                </button>
+                <div class="flex flex-wrap gap-2">
+                  <button
+                    phx-click="filter_status"
+                    phx-value-status="all"
+                    class={"px-3 py-2 rounded-lg text-sm font-medium " <> if(@filter_status == "all", do: "bg-blue-600 text-white", else: "bg-gray-100 text-gray-700 hover:bg-gray-200")}
+                  >
+                    Todos
+                  </button>
+                  <button
+                    phx-click="filter_status"
+                    phx-value-status="pending"
+                    class={"px-3 py-2 rounded-lg text-sm font-medium " <> if(@filter_status == "pending", do: "bg-yellow-600 text-white", else: "bg-gray-100 text-gray-700 hover:bg-gray-200")}
+                  >
+                    Pendientes
+                  </button>
+                  <button
+                    phx-click="filter_status"
+                    phx-value-status="confirmed"
+                    class={"px-3 py-2 rounded-lg text-sm font-medium " <> if(@filter_status == "confirmed", do: "bg-blue-600 text-white", else: "bg-gray-100 text-gray-700 hover:bg-gray-200")}
+                  >
+                    Confirmados
+                  </button>
+                  <button
+                    phx-click="filter_status"
+                    phx-value-status="preparing"
+                    class={"px-3 py-2 rounded-lg text-sm font-medium " <> if(@filter_status == "preparing", do: "bg-purple-600 text-white", else: "bg-gray-100 text-gray-700 hover:bg-gray-200")}
+                  >
+                    En preparación
+                  </button>
+                  <button
+                    phx-click="filter_status"
+                    phx-value-status="ready"
+                    class={"px-3 py-2 rounded-lg text-sm font-medium " <> if(@filter_status == "ready", do: "bg-green-600 text-white", else: "bg-gray-100 text-gray-700 hover:bg-gray-200")}
+                  >
+                    Listos
+                  </button>
+                </div>
 
-                <button
-                  phx-click="filter_status"
-                  phx-value-status="confirmed"
-                  class={[
-                    "px-4 py-2 text-sm font-medium rounded-lg transition-colors",
-                    if(@filter_status == "confirmed",
-                      do: "bg-blue-100 text-blue-800 border border-blue-200",
-                      else: "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    )
-                  ]}
-                >
-                  Confirmados
-                </button>
-
-                <button
-                  phx-click="filter_status"
-                  phx-value-status="preparing"
-                  class={[
-                    "px-4 py-2 text-sm font-medium rounded-lg transition-colors",
-                    if(@filter_status == "preparing",
-                      do: "bg-purple-100 text-purple-800 border border-purple-200",
-                      else: "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    )
-                  ]}
-                >
-                  En preparación
-                </button>
-
-                <button
-                  phx-click="filter_status"
-                  phx-value-status="ready"
-                  class={[
-                    "px-4 py-2 text-sm font-medium rounded-lg transition-colors",
-                    if(@filter_status == "ready",
-                      do: "bg-green-100 text-green-800 border border-green-200",
-                      else: "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    )
-                  ]}
-                >
-                  Listos
-                </button>
+                <div class="ml-4 border-l border-gray-300 pl-4">
+                  <span class="text-sm font-medium text-gray-700 mr-2">Tipo:</span>
+                  <div class="flex flex-wrap gap-2 mt-2 sm:mt-0">
+                    <button
+                      phx-click="filter_order_type"
+                      phx-value-type="all"
+                      class={"px-3 py-2 rounded-lg text-sm font-medium " <> if(@filter_order_type == "all", do: "bg-blue-600 text-white", else: "bg-gray-100 text-gray-700 hover:bg-gray-200")}
+                    >
+                      Todos
+                    </button>
+                    <button
+                      phx-click="filter_order_type"
+                      phx-value-type="dine_in"
+                      class={"px-3 py-2 rounded-lg text-sm font-medium " <> if(@filter_order_type == "dine_in", do: "bg-green-600 text-white", else: "bg-gray-100 text-gray-700 hover:bg-gray-200")}
+                    >
+                      <.icon name="hero-calendar" class="w-4 h-4 mr-1" /> En restaurante
+                    </button>
+                    <button
+                      phx-click="filter_order_type"
+                      phx-value-type="pickup"
+                      class={"px-3 py-2 rounded-lg text-sm font-medium " <> if(@filter_order_type == "pickup", do: "bg-orange-600 text-white", else: "bg-gray-100 text-gray-700 hover:bg-gray-200")}
+                    >
+                      <.icon name="hero-shopping-bag" class="w-4 h-4 mr-1" /> Para llevar
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -135,21 +132,41 @@ defmodule FoodReserveWeb.OrderLive.Manage do
                 <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
                   <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div>
-                      <div class="flex items-center">
-                        <.icon name="hero-calendar" class="w-4 h-4 text-gray-500 mr-2" />
-                        <span class="text-sm text-gray-700">
-                          Reserva para el {Calendar.strftime(
-                            order.reservation.reservation_date,
-                            "%d/%m/%Y"
-                          )} a las {Calendar.strftime(order.reservation.reservation_time, "%H:%M")}
-                        </span>
-                      </div>
-                      <div class="flex items-center mt-1">
-                        <.icon name="hero-user" class="w-4 h-4 text-gray-500 mr-2" />
-                        <span class="text-sm text-gray-700">
-                          {order.reservation.customer_name} - {order.reservation.party_size} personas
-                        </span>
-                      </div>
+                      <%= if order.order_type == "dine_in" do %>
+                        <div class="flex items-center">
+                          <.icon name="hero-calendar" class="w-4 h-4 text-gray-500 mr-2" />
+                          <span class="text-sm text-gray-700">
+                            Reserva para el {Calendar.strftime(
+                              order.reservation.reservation_date,
+                              "%d/%m/%Y"
+                            )} a las {Calendar.strftime(order.reservation.reservation_time, "%H:%M")}
+                          </span>
+                        </div>
+                        <div class="flex items-center mt-1">
+                          <.icon name="hero-user" class="w-4 h-4 text-gray-500 mr-2" />
+                          <span class="text-sm text-gray-700">
+                            {order.reservation.customer_name} - {order.reservation.customer_phone}
+                          </span>
+                        </div>
+                      <% else %>
+                        <div class="flex items-center">
+                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800 mr-2">
+                            <.icon name="hero-shopping-bag" class="w-3 h-3 mr-1" /> Para llevar
+                          </span>
+                          <span class="text-sm text-gray-700">
+                            Recogida el {Calendar.strftime(
+                              order.pickup_date,
+                              "%d/%m/%Y"
+                            )} a las {Calendar.strftime(order.pickup_time, "%H:%M")}
+                          </span>
+                        </div>
+                        <div class="flex items-center mt-1">
+                          <.icon name="hero-user" class="w-4 h-4 text-gray-500 mr-2" />
+                          <span class="text-sm text-gray-700">
+                            {order.pickup_name} - {order.pickup_phone}
+                          </span>
+                        </div>
+                      <% end %>
                     </div>
 
                     <div class="flex items-center gap-4">
@@ -337,21 +354,30 @@ defmodule FoodReserveWeb.OrderLive.Manage do
        |> assign(:page_title, "Pedidos Anticipados")
        |> assign(:orders, orders)
        |> assign(:filtered_orders, orders)
-       |> assign(:filter_status, "all")}
+       |> assign(:filter_status, "all")
+       |> assign(:filter_order_type, "all")}
     end
   end
 
   @impl true
   def handle_event("filter_status", %{"status" => status}, socket) do
     filtered_orders =
-      case status do
-        "all" -> socket.assigns.orders
-        status -> Enum.filter(socket.assigns.orders, &(&1.status == status))
-      end
+      apply_filters(socket.assigns.orders, status, socket.assigns.filter_order_type)
 
     {:noreply,
      socket
      |> assign(:filter_status, status)
+     |> assign(:filtered_orders, filtered_orders)}
+  end
+
+  @impl true
+  def handle_event("filter_order_type", %{"type" => order_type}, socket) do
+    filtered_orders =
+      apply_filters(socket.assigns.orders, socket.assigns.filter_status, order_type)
+
+    {:noreply,
+     socket
+     |> assign(:filter_order_type, order_type)
      |> assign(:filtered_orders, filtered_orders)}
   end
 
@@ -365,10 +391,7 @@ defmodule FoodReserveWeb.OrderLive.Manage do
         orders = Orders.list_restaurant_owner_orders(socket.assigns.current_scope)
 
         filtered_orders =
-          case socket.assigns.filter_status do
-            "all" -> orders
-            filter_status -> Enum.filter(orders, &(&1.status == filter_status))
-          end
+          apply_filters(orders, socket.assigns.filter_status, socket.assigns.filter_order_type)
 
         {:noreply,
          socket
@@ -382,6 +405,19 @@ defmodule FoodReserveWeb.OrderLive.Manage do
          |> put_flash(:error, "No se pudo actualizar el estado del pedido.")}
     end
   end
+
+  # Función auxiliar para aplicar ambos filtros
+  defp apply_filters(orders, status, order_type) do
+    orders
+    |> filter_by_status(status)
+    |> filter_by_type(order_type)
+  end
+
+  defp filter_by_status(orders, "all"), do: orders
+  defp filter_by_status(orders, status), do: Enum.filter(orders, &(&1.status == status))
+
+  defp filter_by_type(orders, "all"), do: orders
+  defp filter_by_type(orders, type), do: Enum.filter(orders, &(&1.order_type == type))
 
   # Función auxiliar para formatear precios
   defp format_price(price) do

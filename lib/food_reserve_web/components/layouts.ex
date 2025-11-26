@@ -90,8 +90,24 @@ defmodule FoodReserveWeb.Layouts do
                     navigate={~p"/restaurants"}
                     class="block px-4 py-2 text-gray-800 hover:bg-orange-100 rounded-t-lg"
                   >
-                    Mis Restaurantes
+                    Restaurantes
                   </.link>
+
+                  <%= if @current_scope.user.role == "customer" do %>
+                    <.link
+                      navigate={~p"/my-reservations"}
+                      class="block px-4 py-2 text-gray-800 hover:bg-orange-100"
+                    >
+                      Mis Reservas
+                    </.link>
+
+                    <.link
+                      navigate={~p"/my-orders"}
+                      class="block px-4 py-2 text-gray-800 hover:bg-orange-100"
+                    >
+                      Mis Pedidos
+                    </.link>
+                  <% end %>
 
                   <%= if @current_scope.user.role == "restaurant_owner" do %>
                     <.link
@@ -221,8 +237,26 @@ defmodule FoodReserveWeb.Layouts do
                 class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
                 @click="mobileMenuOpen = false"
               >
-                Mis Restaurantes
+                Restaurantes
               </a>
+
+              <%= if @current_scope.user.role == "customer" do %>
+                <a
+                  href={~p"/my-reservations"}
+                  class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                  @click="mobileMenuOpen = false"
+                >
+                  Mis Reservas
+                </a>
+
+                <a
+                  href={~p"/my-orders"}
+                  class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                  @click="mobileMenuOpen = false"
+                >
+                  Mis Pedidos
+                </a>
+              <% end %>
               <a
                 href={~p"/users/settings"}
                 class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"

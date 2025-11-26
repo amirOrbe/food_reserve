@@ -10,13 +10,84 @@ defmodule FoodReserve.Orders do
   alias FoodReserve.Orders.OrderItem
   alias FoodReserve.Menus.MenuItem
   alias FoodReserve.Notifications
+  alias FoodReserve.Reservations.Reservation
 
   @doc """
-  Devuelve la lista de pedidos.
+  Gets a single order.
+
+  Raises `Ecto.NoResultsError` if the Order does not exist.
+
+  ## Examples
+
+      iex> get_order!(123)
+      %Order{}
+
+      iex> get_order!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_order!(id) do
+    Order
+    |> Repo.get!(id)
+    |> Repo.preload([:reservation, :restaurant, order_items: [:menu_item]])
+  end
+
+  @doc """
+  Gets a single order.
+
+  Returns nil if the Order does not exist.
+
+  ## Examples
+
+      iex> get_order(123)
+      %Order{}
+
+      iex> get_order(456)
+      nil
+
+  """
+  def get_order(id) do
+    Repo.get(Order, id)
+    |> case do
+      nil -> nil
+      order -> Repo.preload(order, [:reservation, :restaurant, order_items: [:menu_item]])
+    end
+  end
+
+  @doc """
+  Returns the list of orders.
+
+  ## Examples
+
+      iex> list_orders()
+      [%Order{}, ...]
+
   """
   def list_orders do
     Repo.all(Order)
     |> Repo.preload([:reservation, order_items: [:menu_item]])
+  end
+
+  @doc """
+  Returns the list of orders for a specific user.
+
+  ## Examples
+
+      iex> list_user_orders(%FoodReserve.Accounts.Scope{user: %User{id: 123}})
+      [%Order{}, ...]
+
+  """
+  def list_user_orders(%FoodReserve.Accounts.Scope{user: user}) do
+    user_id = user.id
+
+    # Consulta para obtener pedidos donde el user_id coincide
+    query =
+      from o in Order,
+        where: o.user_id == ^user_id,
+        order_by: [desc: o.inserted_at],
+        preload: [:restaurant, order_items: [:menu_item]]
+
+    Repo.all(query)
   end
 
   @doc """
@@ -33,23 +104,35 @@ defmodule FoodReserve.Orders do
       FoodReserve.Restaurants.list_restaurants(scope)
       |> Enum.map(& &1.id)
 
-    # Obtener pedidos para estos restaurantes
-    Order
-    |> join(:inner, [o], r in assoc(o, :reservation))
-    |> where([o, r], r.restaurant_id in ^restaurant_ids)
-    |> order_by([o], desc: o.inserted_at)
-    |> preload([o], [:reservation, order_items: [:menu_item]])
-    |> Repo.all()
+    # Necesitamos dos consultas separadas y luego combinarlas:
+    # 1. Pedidos asociados a reservaciones (dine_in)
+    dine_in_orders =
+      Order
+      |> join(:inner, [o], r in assoc(o, :reservation))
+      |> where([o, r], r.restaurant_id in ^restaurant_ids)
+      |> order_by([o], desc: o.inserted_at)
+      |> preload([o], [:reservation, order_items: [:menu_item]])
+      |> Repo.all()
+
+    # 2. Pedidos para llevar (pickup) - estos tienen restaurant_id directamente
+    pickup_orders =
+      Order
+      |> where([o], o.restaurant_id in ^restaurant_ids and o.order_type == "pickup")
+      |> order_by([o], desc: o.inserted_at)
+      |> preload([o], [:restaurant, order_items: [:menu_item]])
+      |> Repo.all()
+
+    # Combinar ambas listas y ordenar por fecha de creación (más reciente primero)
+    (dine_in_orders ++ pickup_orders)
+    |> Enum.sort_by(& &1.inserted_at, fn a, b ->
+      case NaiveDateTime.compare(a, b) do
+        :gt -> true
+        _ -> false
+      end
+    end)
   end
 
-  @doc """
-  Obtiene un solo pedido.
-  """
-  def get_order!(id) do
-    Order
-    |> Repo.get!(id)
-    |> Repo.preload([:reservation, order_items: [:menu_item]])
-  end
+  # Esta función se ha eliminado para evitar duplicados con get_order!/1 definida anteriormente
 
   @doc """
   Obtiene un pedido por su ID de reservación.
@@ -147,18 +230,30 @@ defmodule FoodReserve.Orders do
   @doc """
   Cambia el estado de un pedido.
   """
-  def update_order_status(%Order{} = order, status) do
-    order
-    |> Order.changeset(%{status: status})
-    |> Repo.update()
-    |> case do
+  def update_order_status(%Order{} = order, new_status) do
+    changeset = Order.changeset(order, %{status: new_status})
+
+    case Repo.update(changeset) do
       {:ok, updated_order} ->
-        # Notificar al cliente sobre el cambio de estado
+        # Precargar relaciones necesarias según el tipo de pedido
+        updated_order =
+          case updated_order.order_type do
+            "dine_in" ->
+              updated_order |> Repo.preload(reservation: :restaurant)
+
+            "pickup" ->
+              updated_order |> Repo.preload(:restaurant)
+
+            _ ->
+              updated_order |> Repo.preload([:restaurant, reservation: :restaurant])
+          end
+
+        # Notify user about the status update
         notify_order_status_update(updated_order)
         {:ok, updated_order}
 
-      error ->
-        error
+      {:error, changeset} ->
+        {:error, changeset}
     end
   end
 
@@ -167,6 +262,131 @@ defmodule FoodReserve.Orders do
   """
   def change_order(%Order{} = order, attrs \\ %{}) do
     Order.changeset(order, attrs)
+  end
+
+  @doc """
+  Updates a pickup order with new information.
+
+  ## Examples
+
+      iex> update_pickup_order(order, %{pickup_time: ~T[14:30:00]})
+      {:ok, %Order{}}
+
+  """
+  def update_pickup_order(%Order{} = order, attrs) do
+    # Solo se permite actualizar pedidos pendientes
+    if order.status != "pending" do
+      {:error, :not_editable}
+    else
+      # Crear changeset con los nuevos datos
+      changeset = Order.changeset(order, attrs)
+
+      # Actualizar el pedido en una transacción
+      Repo.transaction(fn ->
+        case Repo.update(changeset) do
+          {:ok, updated_order} ->
+            # Recuperar el pedido actualizado con sus relaciones
+            updated_order = Repo.preload(updated_order, [:restaurant, order_items: [:menu_item]])
+            updated_order
+
+          {:error, changeset} ->
+            Repo.rollback(changeset)
+        end
+      end)
+    end
+  end
+
+  @doc """
+  Crea un pedido para llevar sin reservación.
+
+  ## Examples
+
+      iex> create_pickup_order(scope, restaurant_id, %{field: value})
+      {:ok, %Order{}}
+
+      iex> create_pickup_order(scope, restaurant_id, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_pickup_order(%FoodReserve.Accounts.Scope{} = _scope, restaurant_id, attrs) do
+    # Transacción para crear el pedido y sus elementos
+    order_items_params = attrs["order_items"] || []
+    attrs = Map.delete(attrs, "order_items")
+
+    # Asegurar que esté asociado al restaurante
+    restaurant = FoodReserve.Restaurants.get_restaurant!(restaurant_id)
+
+    # Añadir el restaurante_id al pedido
+    attrs = Map.put(attrs, "restaurant_id", restaurant_id)
+
+    # Verificar que el restaurante existe y está activo
+    if restaurant do
+      Repo.transaction(fn ->
+        # Crear el pedido con la asociación al restaurante
+        order_changeset = Order.changeset(%Order{}, attrs)
+
+        case Repo.insert(order_changeset) do
+          {:ok, order} ->
+            # Insertar los elementos del pedido
+            _order_items = create_order_items(order.id, order_items_params)
+
+            # Recuperar el pedido con los elementos asociados
+            order =
+              order
+              |> Repo.preload(order_items: [:menu_item])
+
+            # Notificar al dueño del restaurante sobre el nuevo pedido para llevar
+            notify_new_pickup_order(order, restaurant_id)
+
+            order
+
+          {:error, changeset} ->
+            Repo.rollback(changeset)
+        end
+      end)
+    else
+      {:error, :restaurant_not_found}
+    end
+  end
+
+  defp create_order_items(order_id, items_params) do
+    Enum.map(items_params, fn item_params ->
+      # Convertir todas las claves a string para evitar mezclas
+      string_params =
+        for {key, val} <- item_params, into: %{} do
+          {to_string(key), val}
+        end
+
+      # Asociar el item con el pedido
+      item_params = Map.put(string_params, "order_id", order_id)
+
+      # Crear el changeset e insertar
+      %OrderItem{}
+      |> OrderItem.changeset(item_params)
+      |> Repo.insert!()
+    end)
+  end
+
+  defp notify_new_pickup_order(order, restaurant_id) do
+    # Obtener el restaurante
+    restaurant = FoodReserve.Restaurants.get_restaurant!(restaurant_id)
+
+    # Crear notificación para el dueño del restaurante
+    attrs = %{
+      title: "Nuevo pedido para llevar",
+      message:
+        "Has recibido un nuevo pedido para llevar para hoy #{format_date(order.pickup_date)} a las #{format_time(order.pickup_time)}.",
+      type: "pickup_order_created",
+      user_id: restaurant.user_id,
+      restaurant_id: restaurant.id,
+      read: false
+    }
+
+    Notifications.create_notification(attrs)
+  end
+
+  defp format_time(time) do
+    "#{String.pad_leading("#{time.hour}", 2, "0")}:#{String.pad_leading("#{time.minute}", 2, "0")}"
   end
 
   # Notificaciones
@@ -193,24 +413,41 @@ defmodule FoodReserve.Orders do
   end
 
   defp notify_order_status_update(%Order{} = order) do
-    reservation = order.reservation
+    status_message =
+      case order.status do
+        "confirmed" -> "confirmado"
+        "preparing" -> "en preparación"
+        "ready" -> "listo para servir"
+        "completed" -> "completado"
+        "cancelled" -> "cancelado"
+        _ -> order.status
+      end
 
-    if reservation && reservation.user_id do
-      status_message =
-        case order.status do
-          "confirmed" -> "confirmado"
-          "preparing" -> "en preparación"
-          "ready" -> "listo para servir"
-          "completed" -> "completado"
-          "cancelled" -> "cancelado"
-          _ -> order.status
-        end
+    case order.order_type do
+      "dine_in" ->
+        notify_dine_in_order_status_update(order, status_message)
 
-      formatted_time =
-        "#{reservation.reservation_time.hour}:#{String.pad_leading("#{reservation.reservation_time.minute}", 2, "0")}"
+      "pickup" ->
+        notify_pickup_order_status_update(order, status_message)
+
+      _ ->
+        # Tipo de pedido desconocido, no enviamos notificación
+        nil
+    end
+  end
+
+  defp notify_dine_in_order_status_update(
+         %Order{reservation_id: reservation_id} = _order,
+         status_message
+       ) do
+    # Obtener la reservación directamente sin usar get_reservation!/2 que requiere un scope
+    reservation = Repo.get(Reservation, reservation_id) |> Repo.preload([:restaurant])
+
+    if reservation do
+      formatted_time = format_time(reservation.reservation_time)
 
       attrs = %{
-        title: "Actualización de pedido",
+        title: "Actualización de pedido para reservación",
         message:
           "Su pedido para la reservación del #{format_date(reservation.reservation_date)} a las #{formatted_time} ha sido actualizado a: #{status_message}",
         type: "order_updated",
@@ -226,5 +463,30 @@ defmodule FoodReserve.Orders do
 
   defp format_date(date) do
     "#{date.day}/#{date.month}/#{date.year}"
+  end
+
+  defp notify_pickup_order_status_update(%Order{} = order, status_message) do
+    # Para pedidos pickup, notificamos al usuario que hizo el pedido
+    formatted_time = format_time(order.pickup_time)
+
+    # Obtener el restaurante
+    restaurant = Repo.get!(FoodReserve.Restaurants.Restaurant, order.restaurant_id)
+
+    # Crear notificación para el dueño del restaurante
+    attrs = %{
+      title: "Actualización de pedido para llevar",
+      message:
+        "El pedido para llevar del #{format_date(order.pickup_date)} a las #{formatted_time} ha sido actualizado a: #{status_message}",
+      type: "pickup_order_updated",
+      # Notificamos al dueño del restaurante
+      user_id: restaurant.user_id,
+      restaurant_id: order.restaurant_id,
+      read: false
+    }
+
+    Notifications.create_notification(attrs)
+
+    # Si tenemos el pickup_name y pickup_phone, podríamos enviar un SMS o email
+    # Pero como simplificación, solo notificamos al dueño del restaurante
   end
 end

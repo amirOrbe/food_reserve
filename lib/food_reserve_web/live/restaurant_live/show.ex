@@ -67,6 +67,13 @@ defmodule FoodReserveWeb.RestaurantLive.Show do
                         <.icon name="hero-calendar-days" class="w-4 h-4 mr-2" /> Hacer Reserva
                       </.link>
 
+                      <.link
+                        navigate={~p"/restaurants/#{@restaurant}/pickup"}
+                        class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors duration-200"
+                      >
+                        <.icon name="hero-shopping-bag" class="w-4 h-4 mr-2" /> Pedir para llevar
+                      </.link>
+
                       <%= if @can_review do %>
                         <.link
                           navigate={~p"/restaurants/#{@restaurant}/review"}
@@ -80,10 +87,17 @@ defmodule FoodReserveWeb.RestaurantLive.Show do
                 <% else %>
                   <!-- Botón para usuarios no autenticados -->
                   <.link
-                    navigate={~p"/users/log-in"}
-                    class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors duration-200"
+                    href={~p"/users/log-in"}
+                    class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors duration-200"
                   >
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg
+                      class="-ml-1 mr-2 h-4 w-4"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      aria-hidden="true"
+                    >
                       <path
                         stroke-linecap="round"
                         stroke-linejoin="round"
@@ -91,7 +105,7 @@ defmodule FoodReserveWeb.RestaurantLive.Show do
                         d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
                       />
                     </svg>
-                    Iniciar Sesión para Reservar
+                    Iniciar Sesión para Ordenar
                   </.link>
                 <% end %>
               </div>

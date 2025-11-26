@@ -367,4 +367,35 @@ defmodule FoodReserve.Restaurants do
 
     WorkingHour.changeset(working_hour, attrs)
   end
+
+  @doc """
+  Returns the working hours for a restaurant for a specific date.
+
+  ## Examples
+
+      iex> get_working_hours_for_date(restaurant_id, ~D[2025-11-26])
+      %WorkingHour{}
+
+      iex> get_working_hours_for_date(restaurant_id, ~D[2025-11-27])
+      nil
+  """
+  def get_working_hours_for_date(restaurant_id, %Date{} = date) do
+    # Convertir el número de día de la semana (1-7) a nombre del día en inglés
+    # Usamos el valor de Date.day_of_week donde 1 es lunes y 7 es domingo
+    day_of_week =
+      case Date.day_of_week(date) do
+        1 -> "monday"
+        2 -> "tuesday"
+        3 -> "wednesday"
+        4 -> "thursday"
+        5 -> "friday"
+        6 -> "saturday"
+        7 -> "sunday"
+      end
+
+    from(wh in WorkingHour,
+      where: wh.restaurant_id == ^restaurant_id and wh.day_of_week == ^day_of_week
+    )
+    |> Repo.one()
+  end
 end
