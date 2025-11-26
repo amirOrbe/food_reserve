@@ -105,3 +105,30 @@
 /* This file is for your main application CSS */
 
 [x-cloak] { display: none !important; }
+
+/* Animaciones personalizadas para el menú móvil */
+.animate-fade-in-down {
+  animation: fadeInDown 0.3s ease-out;
+}
+
+.mobile-menu-slide {
+  animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}

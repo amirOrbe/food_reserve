@@ -33,4 +33,24 @@ defmodule FoodReserveWeb.LiveHelpers do
       end
     end
   end
+
+  @doc """
+  Handles the toggle_mobile_menu event for the mobile navigation.
+  """
+  def handle_toggle_mobile_menu(socket) do
+    current_state = Map.get(socket.assigns, :mobile_menu_open, false)
+    {:noreply, assign(socket, :mobile_menu_open, !current_state)}
+  end
+
+  @doc """
+  Macro to add mobile menu handling to LiveViews.
+  """
+  defmacro handle_mobile_menu do
+    quote do
+      @impl true
+      def handle_event("toggle_mobile_menu", _params, socket) do
+        FoodReserveWeb.LiveHelpers.handle_toggle_mobile_menu(socket)
+      end
+    end
+  end
 end

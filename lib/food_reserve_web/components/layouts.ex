@@ -38,13 +38,10 @@ defmodule FoodReserveWeb.Layouts do
   slot :inner_block, required: true
 
   def app(assigns) do
+    assigns = assign_new(assigns, :mobile_menu_open, fn -> false end)
+
     ~H"""
-    <header
-      class="bg-white shadow-sm"
-      x-data="{ mobileMenuOpen: false }"
-      @click.outside="mobileMenuOpen = false"
-      @keydown.escape="mobileMenuOpen = false"
-    >
+    <header class="bg-white shadow-sm">
       <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
           <!-- Logo -->
@@ -175,124 +172,142 @@ defmodule FoodReserveWeb.Layouts do
             <% end %>
             <.theme_toggle />
             <button
-              @click.stop="mobileMenuOpen = !mobileMenuOpen"
+              phx-click="toggle_mobile_menu"
               type="button"
               class="inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-gray-800 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-orange-500"
             >
               <span class="sr-only">Abrir menú principal</span>
-              <!-- Hamburger icon -->
-              <svg
-                x-show="!mobileMenuOpen"
-                class="block h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-              <!-- Close icon -->
-              <svg
-                x-show="mobileMenuOpen"
-                class="block h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                x-cloak
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
+              <%= if @mobile_menu_open do %>
+                <!-- Close icon -->
+                <svg
+                  class="block h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              <% else %>
+                <!-- Hamburger icon -->
+                <svg
+                  class="block h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                </svg>
+              <% end %>
             </button>
           </div>
         </div>
         
     <!-- Mobile menu -->
-        <div
-          x-show="mobileMenuOpen"
-          class="md:hidden"
-          x-transition:enter="transition ease-out duration-200"
-          x-transition:enter-start="opacity-0 transform -translate-y-2"
-          x-transition:enter-end="opacity-100 transform translate-y-0"
-          x-transition:leave="transition ease-in duration-150"
-          x-transition:leave-start="opacity-100 transform translate-y-0"
-          x-transition:leave-end="opacity-0 transform -translate-y-2"
-          x-cloak
-        >
-          <div class="px-2 pt-2 pb-3 space-y-1 bg-white border-t border-gray-200">
-            <%= if @current_scope && @current_scope.user do %>
-              <div class="px-3 py-2 text-sm font-medium text-gray-500 border-b border-gray-200">
-                Hola, {@current_scope.user.name}
-              </div>
-              <a
-                href={~p"/restaurants"}
-                class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-                @click="mobileMenuOpen = false"
-              >
-                Restaurantes
-              </a>
-
-              <%= if @current_scope.user.role == "customer" do %>
-                <a
-                  href={~p"/my-reservations"}
-                  class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-                  @click="mobileMenuOpen = false"
-                >
-                  Mis Reservas
-                </a>
-
-                <a
-                  href={~p"/my-orders"}
-                  class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-                  @click="mobileMenuOpen = false"
-                >
-                  Mis Pedidos
-                </a>
-              <% end %>
-              <a
-                href={~p"/users/settings"}
-                class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-                @click="mobileMenuOpen = false"
-              >
-                Ajustes
-              </a>
-              <form action={~p"/users/log-out"} method="post" class="block">
-                <input type="hidden" name="_method" value="delete" />
-                <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
+        <%= if @mobile_menu_open do %>
+          <div class="md:hidden animate-fade-in-down fixed inset-0 z-50 bg-black bg-opacity-50">
+            <div class="mobile-menu-slide bg-white h-screen w-3/4 max-w-xs overflow-y-auto shadow-xl">
+              <!-- Header menu mobile con botón cerrar -->
+              <div class="flex items-center justify-between p-4 border-b border-gray-200">
+                <div class="font-semibold text-lg text-gray-800">Menú</div>
                 <button
-                  type="submit"
-                  class="w-full text-left px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-                  @click="mobileMenuOpen = false"
+                  phx-click="toggle_mobile_menu"
+                  class="p-2 rounded-full hover:bg-gray-100"
+                  aria-label="Cerrar menú"
                 >
-                  Cerrar Sesión
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    >
+                    </path>
+                  </svg>
                 </button>
-              </form>
-            <% else %>
-              <a
-                href={~p"/users/log-in"}
-                class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-                @click="mobileMenuOpen = false"
-              >
-                Iniciar Sesión
-              </a>
-              <a
-                href={~p"/users/register"}
-                class="block px-3 py-2 text-base font-medium bg-orange-500 text-white hover:bg-orange-600 rounded-lg mx-3"
-                @click="mobileMenuOpen = false"
-              >
-                Registrarse
-              </a>
-            <% end %>
+              </div>
+
+              <div class="px-2 pt-2 pb-3 space-y-1 bg-white">
+                <%= if @current_scope && @current_scope.user do %>
+                  <div class="px-3 py-2 text-sm font-medium text-gray-500 border-b border-gray-200">
+                    Hola, {@current_scope.user.name}
+                  </div>
+                  <a
+                    href={~p"/restaurants"}
+                    class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                    phx-click="toggle_mobile_menu"
+                  >
+                    Restaurantes
+                  </a>
+
+                  <%= if @current_scope.user.role == "customer" do %>
+                    <a
+                      href={~p"/my-reservations"}
+                      class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                      phx-click="toggle_mobile_menu"
+                    >
+                      Mis Reservas
+                    </a>
+
+                    <a
+                      href={~p"/my-orders"}
+                      class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                      phx-click="toggle_mobile_menu"
+                    >
+                      Mis Pedidos
+                    </a>
+                  <% end %>
+                  <a
+                    href={~p"/users/settings"}
+                    class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                    phx-click="toggle_mobile_menu"
+                  >
+                    Ajustes
+                  </a>
+                  <form action={~p"/users/log-out"} method="post" class="block">
+                    <input type="hidden" name="_method" value="delete" />
+                    <input
+                      type="hidden"
+                      name="_csrf_token"
+                      value={Plug.CSRFProtection.get_csrf_token()}
+                    />
+                    <button
+                      type="submit"
+                      class="w-full text-left px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                      phx-click="toggle_mobile_menu"
+                    >
+                      Cerrar Sesión
+                    </button>
+                  </form>
+                <% else %>
+                  <a
+                    href={~p"/users/log-in"}
+                    class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                    phx-click="toggle_mobile_menu"
+                  >
+                    Iniciar Sesión
+                  </a>
+                  <a
+                    href={~p"/users/register"}
+                    class="block px-3 py-2 text-base font-medium bg-orange-500 text-white hover:bg-orange-600 rounded-lg mx-3"
+                    phx-click="toggle_mobile_menu"
+                  >
+                    Registrarse
+                  </a>
+                <% end %>
+              </div>
+            </div>
           </div>
-        </div>
+        <% end %>
       </nav>
     </header>
 

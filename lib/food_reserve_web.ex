@@ -52,7 +52,11 @@ defmodule FoodReserveWeb do
     quote do
       use Phoenix.LiveView
 
+      import FoodReserveWeb.LiveHelpers
       unquote(html_helpers())
+
+      # Incluir manejo del menú móvil en todos los LiveViews
+      handle_mobile_menu()
     end
   end
 
