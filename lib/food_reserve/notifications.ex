@@ -293,13 +293,16 @@ defmodule FoodReserve.Notifications do
     reservation = Repo.preload(reservation, [:restaurant])
 
     create_notification(%{
-      title: "¿Cómo estuvo tu experiencia?",
+      title: "How was your experience?",
       message:
-        "Esperamos que hayas disfrutado tu visita a #{reservation.restaurant.name}. ¡Comparte tu experiencia y ayuda a otros comensales!",
+        "We hope you enjoyed your visit to #{reservation.restaurant.name}. Share your experience and help other diners!",
       type: "review_reminder",
       user_id: reservation.user_id,
       restaurant_id: reservation.restaurant_id,
-      reservation_id: reservation.id
+      reservation_id: reservation.id,
+      # Add action data for direct link to review page
+      action_text: "Rate now",
+      action_url: "/reservations/#{reservation.id}/review-prompt"
     })
   end
 end

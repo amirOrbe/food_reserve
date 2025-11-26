@@ -105,14 +105,29 @@ defmodule FoodReserve.Reservations do
 
   """
   def update_reservation(%Scope{} = scope, %Reservation{} = reservation, attrs) do
+    IO.puts("[update_reservation] Initial attrs: #{inspect(attrs)}")
+
+    # Verify user_id matches scope
     true = reservation.user_id == scope.user.id
 
+    # Create changeset for debugging
+    changeset = Reservation.changeset(reservation, attrs)
+    IO.puts("[update_reservation] Changeset valid? #{changeset.valid?}")
+
+    if !changeset.valid? do
+      IO.puts("[update_reservation] Changeset errors: #{inspect(changeset.errors)}")
+    end
+
+    # Try to update
     with {:ok, reservation = %Reservation{}} <-
-           reservation
-           |> Reservation.changeset(attrs)
-           |> Repo.update() do
+           Repo.update(changeset) do
       broadcast_reservation(scope, {:updated, reservation})
+      IO.puts("[update_reservation] Success! New party_size: #{reservation.party_size}")
       {:ok, reservation}
+    else
+      {:error, changeset} = error ->
+        IO.puts("[update_reservation] Error: #{inspect(changeset.errors)}")
+        error
     end
   end
 
@@ -205,6 +220,32 @@ defmodule FoodReserve.Reservations do
   end
 
   @doc """
+  Gets reservations that should be marked as completed.
+
+  A reservation is considered ready to be marked as completed if:
+  1. Its status is "confirmed"
+  2. Its date is in the past, or
+  3. Its date is today and its time + threshold_hours is in the past
+
+  ## Examples
+
+      iex> get_reservations_to_complete(today, now, 2)
+      [%Reservation{}, ...]
+  """
+  def get_reservations_to_complete(today, now, threshold_hours) do
+    past_time_threshold = Time.add(now, -threshold_hours * 60 * 60)
+
+    from(r in Reservation,
+      where: r.status == "confirmed",
+      where:
+        r.reservation_date < ^today or
+          (r.reservation_date == ^today and r.reservation_time < ^past_time_threshold),
+      preload: [:restaurant]
+    )
+    |> Repo.all()
+  end
+
+  @doc """
   Returns the list of existing reservations for a specific restaurant and date.
 
   ## Examples
@@ -217,6 +258,25 @@ defmodule FoodReserve.Reservations do
       where: r.restaurant_id == ^restaurant_id,
       where: r.reservation_date == ^date,
       where: r.status in ["pending", "confirmed"],
+      select: r.reservation_time
+    )
+    |> Repo.all()
+  end
+
+  @doc """
+  Returns the list of booked times for a specific restaurant and date, excluding a specific reservation.
+
+  ## Examples
+
+      iex> get_booked_times_for_date(date, restaurant_id, reservation_id)
+      [~T[18:00:00], ...]
+  """
+  def get_booked_times_for_date(date, restaurant_id, reservation_id) do
+    from(r in Reservation,
+      where: r.restaurant_id == ^restaurant_id,
+      where: r.reservation_date == ^date,
+      where: r.status in ["pending", "confirmed"],
+      where: r.id != ^reservation_id,
       select: r.reservation_time
     )
     |> Repo.all()

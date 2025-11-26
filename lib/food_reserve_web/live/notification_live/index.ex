@@ -96,7 +96,7 @@ defmodule FoodReserveWeb.NotificationLive.Index do
                               phx-value-id={notification.id}
                               class="text-xs text-blue-600 hover:text-blue-800"
                             >
-                              Marcar como leída
+                              Mark as read
                             </button>
                           <% end %>
                         </div>
@@ -109,27 +109,38 @@ defmodule FoodReserveWeb.NotificationLive.Index do
                         {notification.message}
                       </p>
 
-                      <%= if notification.restaurant do %>
+                      <%= if notification.action_text && notification.action_url do %>
                         <div class="mt-2">
                           <.link
-                            navigate={~p"/restaurants/#{notification.restaurant}"}
-                            class="inline-flex items-center text-xs text-orange-600 hover:text-orange-800"
+                            navigate={notification.action_url}
+                            class="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors"
                           >
-                            <.icon name="hero-building-storefront" class="w-3 h-3 mr-1" />
-                            Ver restaurante
+                            {notification.action_text}
                           </.link>
                         </div>
-                      <% end %>
+                      <% else %>
+                        <%= if notification.restaurant do %>
+                          <div class="mt-2">
+                            <.link
+                              navigate={~p"/restaurants/#{notification.restaurant}"}
+                              class="inline-flex items-center text-xs text-orange-600 hover:text-orange-800"
+                            >
+                              <.icon name="hero-building-storefront" class="w-3 h-3 mr-1" />
+                              View restaurant
+                            </.link>
+                          </div>
+                        <% end %>
 
-                      <%= if notification.type == "review_reminder" and notification.restaurant do %>
-                        <div class="mt-2">
-                          <.link
-                            navigate={~p"/restaurants/#{notification.restaurant}/review"}
-                            class="inline-flex items-center text-xs text-yellow-600 hover:text-yellow-800"
-                          >
-                            <.icon name="hero-star" class="w-3 h-3 mr-1" /> Dejar reseña
-                          </.link>
-                        </div>
+                        <%= if notification.type == "review_reminder" and notification.restaurant do %>
+                          <div class="mt-2">
+                            <.link
+                              navigate={~p"/restaurants/#{notification.restaurant}/review"}
+                              class="inline-flex items-center text-xs text-yellow-600 hover:text-yellow-800"
+                            >
+                              <.icon name="hero-star" class="w-3 h-3 mr-1" /> Leave a review
+                            </.link>
+                          </div>
+                        <% end %>
                       <% end %>
                     </div>
                   </div>
@@ -138,9 +149,9 @@ defmodule FoodReserveWeb.NotificationLive.Index do
             <% else %>
               <div class="text-center py-12">
                 <.icon name="hero-bell-slash" class="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                <h3 class="text-lg font-medium text-gray-900 mb-2">No tienes notificaciones</h3>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">You have no notifications</h3>
                 <p class="text-gray-600">
-                  Cuando tengas actualizaciones sobre tus reservas, aparecerán aquí.
+                  When you have updates about your reservations, they will appear here.
                 </p>
               </div>
             <% end %>

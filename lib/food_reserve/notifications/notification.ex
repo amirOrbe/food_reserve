@@ -19,6 +19,8 @@ defmodule FoodReserve.Notifications.Notification do
     field :message, :string
     field :type, :string
     field :read, :boolean, default: false
+    field :action_text, :string
+    field :action_url, :string
 
     belongs_to :user, User
     belongs_to :restaurant, Restaurant
@@ -30,21 +32,31 @@ defmodule FoodReserve.Notifications.Notification do
   @doc false
   def changeset(notification, attrs) do
     notification
-    |> cast(attrs, [:title, :message, :type, :read, :user_id, :restaurant_id, :reservation_id])
+    |> cast(attrs, [
+      :title,
+      :message,
+      :type,
+      :read,
+      :user_id,
+      :restaurant_id,
+      :reservation_id,
+      :action_text,
+      :action_url
+    ])
     |> validate_required([:title, :message, :type, :user_id])
-    |> validate_inclusion(:type, @notification_types, message: "debe ser un tipo válido")
+    |> validate_inclusion(:type, @notification_types, message: "must be a valid type")
     |> foreign_key_constraint(:user_id)
     |> foreign_key_constraint(:restaurant_id)
     |> foreign_key_constraint(:reservation_id)
   end
 
   @doc """
-  Retorna los tipos de notificación disponibles.
+  Returns available notification types.
   """
   def notification_types, do: @notification_types
 
   @doc """
-  Retorna el icono apropiado para cada tipo de notificación.
+  Returns the appropriate icon for each notification type.
   """
   def get_icon_for_type(type) do
     case type do
@@ -58,7 +70,7 @@ defmodule FoodReserve.Notifications.Notification do
   end
 
   @doc """
-  Retorna el color apropiado para cada tipo de notificación.
+  Returns the appropriate color for each notification type.
   """
   def get_color_for_type(type) do
     case type do

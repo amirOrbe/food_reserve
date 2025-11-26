@@ -201,7 +201,7 @@ defmodule FoodReserveWeb.ReservationLive.Index do
                         navigate={~p"/restaurants/#{reservation.restaurant}"}
                         class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50"
                       >
-                        <.icon name="hero-eye" class="w-4 h-4 mr-2" /> Ver Restaurante
+                        <.icon name="hero-eye" class="w-4 h-4 mr-2" /> View Restaurant
                       </.link>
 
                       <%= if reservation.status == "confirmed" do %>
@@ -210,26 +210,32 @@ defmodule FoodReserveWeb.ReservationLive.Index do
                             navigate={~p"/reservations/#{reservation.id}/order"}
                             class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-orange-600 hover:bg-orange-700"
                           >
-                            <.icon name="hero-shopping-bag" class="w-4 h-4 mr-2" /> Pre-ordenar Comida
+                            <.icon name="hero-shopping-bag" class="w-4 h-4 mr-2" /> Pre-order Food
                           </.link>
                         <% else %>
                           <.link
                             navigate={~p"/reservations/#{reservation.id}/order"}
                             class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-green-600 hover:bg-green-700"
                           >
-                            <.icon name="hero-shopping-bag" class="w-4 h-4 mr-2" /> Ver Pedido
+                            <.icon name="hero-shopping-bag" class="w-4 h-4 mr-2" /> View Order
                           </.link>
                         <% end %>
                       <% end %>
 
                       <%= if reservation.status in ["pending", "confirmed"] do %>
+                        <.link
+                          navigate={~p"/reservations/#{reservation.id}/edit"}
+                          class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-blue-700 bg-white hover:bg-blue-50"
+                        >
+                          <.icon name="hero-pencil-square" class="w-4 h-4 mr-2" /> Edit
+                        </.link>
                         <button
                           phx-click="cancel_reservation"
                           phx-value-id={reservation.id}
-                          data-confirm="¿Estás seguro de que quieres cancelar esta reserva?"
+                          data-confirm="Are you sure you want to cancel this reservation?"
                           class="inline-flex items-center justify-center px-4 py-2 border border-red-300 text-sm font-medium rounded-lg text-red-700 bg-white hover:bg-red-50"
                         >
-                          <.icon name="hero-x-mark" class="w-4 h-4 mr-2" /> Cancelar
+                          <.icon name="hero-x-mark" class="w-4 h-4 mr-2" /> Cancel
                         </button>
                       <% end %>
 
@@ -238,13 +244,13 @@ defmodule FoodReserveWeb.ReservationLive.Index do
                           navigate={~p"/reservations/#{reservation.id}/review"}
                           class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-yellow-600 hover:bg-yellow-700"
                         >
-                          <.icon name="hero-star" class="w-4 h-4 mr-2" /> Calificar Restaurante
+                          <.icon name="hero-star" class="w-4 h-4 mr-2" /> Rate Restaurant
                         </.link>
                         <.link
                           navigate={~p"/restaurants/#{reservation.restaurant}/reserve"}
                           class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-green-600 hover:bg-green-700"
                         >
-                          <.icon name="hero-arrow-path" class="w-4 h-4 mr-2" /> Reservar Otra Vez
+                          <.icon name="hero-arrow-path" class="w-4 h-4 mr-2" /> Reserve Again
                         </.link>
                       <% end %>
                     </div>

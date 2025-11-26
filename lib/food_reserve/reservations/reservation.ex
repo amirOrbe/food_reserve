@@ -135,12 +135,25 @@ defmodule FoodReserve.Reservations.Reservation do
     reservation_date = get_field(changeset, :reservation_date)
     reservation_time = get_field(changeset, :reservation_time)
     restaurant_id = get_field(changeset, :restaurant_id)
+    # Obtener ID de la reserva
+    reservation_id = get_field(changeset, :id)
 
     if reservation_date && reservation_time && restaurant_id do
-      # Verificar si ya existe una reserva para este horario
+      # Obtener reservaciones existentes, excluyendo la propia si es una edición
       existing_reservations =
-        FoodReserve.Reservations.get_existing_reservations(restaurant_id, reservation_date)
+        if reservation_id do
+          # Si estamos editando una reservación existente, excluirla
+          FoodReserve.Reservations.get_booked_times_for_date(
+            reservation_date,
+            restaurant_id,
+            reservation_id
+          )
+        else
+          # Si es nueva, verificar todas
+          FoodReserve.Reservations.get_existing_reservations(restaurant_id, reservation_date)
+        end
 
+      # Verificar colisiones
       if Enum.any?(existing_reservations, fn existing_time ->
            Time.compare(reservation_time, existing_time) == :eq
          end) do
