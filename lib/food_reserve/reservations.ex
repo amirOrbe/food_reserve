@@ -59,8 +59,9 @@ defmodule FoodReserve.Reservations do
       ** (Ecto.NoResultsError)
 
   """
-  def get_reservation!(%Scope{} = scope, id) do
+  def get_reservation!(%Scope{} = scope, id, preloads \\ [:restaurant]) do
     Repo.get_by!(Reservation, id: id, user_id: scope.user.id)
+    |> Repo.preload(preloads)
   end
 
   @doc """
@@ -219,10 +220,13 @@ defmodule FoodReserve.Reservations do
       iex> list_user_reservations(scope)
       [%Reservation{}, ...]
   """
-  def list_user_reservations(%Scope{} = scope) do
+  def list_user_reservations(%Scope{} = scope, preloads \\ []) do
+    base_preloads = [:restaurant]
+    full_preloads = base_preloads ++ preloads
+
     from(r in Reservation,
       where: r.user_id == ^scope.user.id,
-      preload: [:restaurant],
+      preload: ^full_preloads,
       order_by: [desc: r.reservation_date, desc: r.reservation_time]
     )
     |> Repo.all()

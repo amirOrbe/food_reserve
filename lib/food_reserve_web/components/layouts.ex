@@ -92,6 +92,15 @@ defmodule FoodReserveWeb.Layouts do
                   >
                     Mis Restaurantes
                   </.link>
+
+                  <%= if @current_scope.user.role == "restaurant_owner" do %>
+                    <.link
+                      navigate={~p"/restaurants/orders"}
+                      class="block px-4 py-2 text-gray-800 hover:bg-orange-100"
+                    >
+                      Pedidos Anticipados
+                    </.link>
+                  <% end %>
                   <.link
                     navigate={~p"/notifications"}
                     class="flex items-center justify-between px-4 py-2 text-gray-800 hover:bg-orange-100"

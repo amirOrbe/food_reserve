@@ -17,6 +17,9 @@ defmodule FoodReserve.Reservations.Reservation do
     belongs_to :user, FoodReserve.Accounts.User
     belongs_to :restaurant, FoodReserve.Restaurants.Restaurant
 
+    # Nueva relación con Order
+    has_one :order, FoodReserve.Orders.Order
+
     timestamps(type: :utc_datetime)
   end
 

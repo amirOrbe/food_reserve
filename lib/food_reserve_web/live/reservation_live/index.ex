@@ -204,6 +204,24 @@ defmodule FoodReserveWeb.ReservationLive.Index do
                         <.icon name="hero-eye" class="w-4 h-4 mr-2" /> Ver Restaurante
                       </.link>
 
+                      <%= if reservation.status == "confirmed" do %>
+                        <%= if is_nil(reservation.order) do %>
+                          <.link
+                            navigate={~p"/reservations/#{reservation.id}/order"}
+                            class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-orange-600 hover:bg-orange-700"
+                          >
+                            <.icon name="hero-shopping-bag" class="w-4 h-4 mr-2" /> Pre-ordenar Comida
+                          </.link>
+                        <% else %>
+                          <.link
+                            navigate={~p"/reservations/#{reservation.id}/order"}
+                            class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-green-600 hover:bg-green-700"
+                          >
+                            <.icon name="hero-shopping-bag" class="w-4 h-4 mr-2" /> Ver Pedido
+                          </.link>
+                        <% end %>
+                      <% end %>
+
                       <%= if reservation.status in ["pending", "confirmed"] do %>
                         <button
                           phx-click="cancel_reservation"
@@ -237,7 +255,8 @@ defmodule FoodReserveWeb.ReservationLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
-    reservations = Reservations.list_user_reservations(socket.assigns.current_scope)
+    # Precargar reservaciones con sus órdenes asociadas
+    reservations = Reservations.list_user_reservations(socket.assigns.current_scope, [:order])
 
     # Calcular contadores por estado
     total_count = length(reservations)

@@ -3,6 +3,8 @@ defmodule FoodReserveWeb.ReservationLive.New do
   import FoodReserveWeb.LiveHelpers
 
   alias FoodReserve.Restaurants
+  alias FoodReserve.Menus
+  alias FoodReserve.Orders
   alias FoodReserve.Reservations
   alias FoodReserve.Reservations.Reservation
 
@@ -184,6 +186,100 @@ defmodule FoodReserveWeb.ReservationLive.New do
                 />
               </div>
               
+    <!-- Pre-order Option -->
+              <div class="mt-6 border-t border-gray-200 pt-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Pre-orden de alimentos</h3>
+                <div class="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="pre_order"
+                    name="pre_order"
+                    phx-click="toggle_pre_order"
+                    checked={@show_pre_order}
+                    class="h-4 w-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                  />
+                  <label for="pre_order" class="ml-2 block text-gray-700">
+                    Pre-ordenar platillos para tener tu comida lista al llegar
+                  </label>
+                </div>
+              </div>
+              
+    <!-- Menu Items Selection -->
+              <%= if @show_pre_order do %>
+                <div class="mt-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <%= if Enum.empty?(@menu_items) do %>
+                    <p class="text-gray-500 italic">
+                      Este restaurante no tiene platillos disponibles para ordenar.
+                    </p>
+                  <% else %>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <%= for {category, items} <- group_by_category(@menu_items) do %>
+                        <div class="bg-white p-4 rounded shadow-sm">
+                          <h3 class="font-semibold text-gray-800 mb-2">
+                            {String.capitalize(category)}
+                          </h3>
+                          <div class="space-y-3">
+                            <%= for item <- items do %>
+                              <div class="flex items-center justify-between border-b pb-2">
+                                <div>
+                                  <div class="font-medium">{item.name}</div>
+                                  <div class="text-sm text-gray-500">{item.description}</div>
+                                  <div class="text-sm font-semibold mt-1">
+                                    ${format_price(item.price)}
+                                  </div>
+                                </div>
+                                <div class="flex items-center">
+                                  <button
+                                    type="button"
+                                    phx-click="decrement"
+                                    phx-value-id={item.id}
+                                    class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-1 px-2 rounded-l"
+                                  >
+                                    -
+                                  </button>
+                                  <span class="bg-white px-3 py-1 border-t border-b">
+                                    {get_item_quantity(assigns, item.id)}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    phx-click="increment"
+                                    phx-value-id={item.id}
+                                    class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-1 px-2 rounded-r"
+                                  >
+                                    +
+                                  </button>
+                                </div>
+                              </div>
+                            <% end %>
+                          </div>
+                        </div>
+                      <% end %>
+                    </div>
+                    
+    <!-- Order Total -->
+                    <div class="mt-4 border-t border-gray-200 pt-4 flex justify-between items-center">
+                      <div class="text-lg font-semibold">
+                        Total: ${format_price(calculate_total(assigns))}
+                      </div>
+                      <div class="text-sm text-gray-500">
+                        {selected_items_count(assigns)} platillos seleccionados
+                      </div>
+                    </div>
+                    
+    <!-- Order Instructions -->
+                    <div class="mt-4">
+                      <.input
+                        field={@form[:order_instructions]}
+                        type="textarea"
+                        label="Instrucciones del pedido (opcional)"
+                        placeholder="Instrucciones especiales para la preparación de los alimentos, alergias, etc."
+                        rows="2"
+                      />
+                    </div>
+                  <% end %>
+                </div>
+              <% end %>
+              
     <!-- Working Hours Info -->
               <%= if not Enum.empty?(@working_hours) do %>
                 <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -238,6 +334,10 @@ defmodule FoodReserveWeb.ReservationLive.New do
     restaurant = Restaurants.get_public_restaurant!(restaurant_id)
     working_hours = Restaurants.get_public_working_hours(restaurant.id)
 
+    # Generar fechas disponibles (próximos 30 días)
+    today = Date.utc_today()
+    available_dates = Date.range(today, Date.add(today, 30))
+
     # Crear una nueva reserva con valores por defecto
     reservation = %Reservation{
       user_id: socket.assigns.current_scope.user.id,
@@ -249,15 +349,26 @@ defmodule FoodReserveWeb.ReservationLive.New do
 
     changeset = Reservations.change_reservation(socket.assigns.current_scope, reservation)
 
+    # Cargar menú del restaurante para pre-ordenar
+    menu_items = Menus.list_menu_items_for_restaurant(restaurant.id, true)
+
+    # Inicializar un mapa de cantidades vacío
+    quantities = menu_items |> Enum.map(&{&1.id, 0}) |> Map.new()
+
     {:ok,
      socket
-     |> assign(:page_title, "Nueva Reserva")
+     |> assign(:page_title, "Reserva")
      |> assign(:restaurant, restaurant)
      |> assign(:working_hours, working_hours)
-     |> assign(:reservation, reservation)
-     |> assign(:form, to_form(changeset))
+     |> assign(:available_dates, available_dates)
      |> assign(:selected_date, nil)
-     |> assign(:available_times, [])}
+     |> assign(:available_times, [])
+     |> assign(:selected_time, nil)
+     |> assign(:form, to_form(changeset))
+     # Asignaciones para pre-orden
+     |> assign(:show_pre_order, false)
+     |> assign(:menu_items, menu_items)
+     |> assign(:quantities, quantities)}
   end
 
   @impl true
@@ -296,18 +407,84 @@ defmodule FoodReserveWeb.ReservationLive.New do
       |> Map.put("user_id", socket.assigns.current_scope.user.id)
       |> Map.put("restaurant_id", socket.assigns.restaurant.id)
 
+    # Crear la reservación primero
     case Reservations.create_reservation(socket.assigns.current_scope, reservation_params) do
-      {:ok, _reservation} ->
-        {:noreply,
-         socket
-         |> put_flash(
-           :info,
-           "¡Gracias por tu reserva! El restaurante se pondrá en comunicación contigo para confirmar los detalles de tu reserva."
-         )
-         |> push_navigate(to: ~p"/restaurants/#{socket.assigns.restaurant}")}
+      {:ok, reservation} ->
+        # Si se activó pre-orden y hay items seleccionados, crear pedido
+        if socket.assigns.show_pre_order && has_selected_items?(socket.assigns) do
+          # Crear los ítems del pedido
+          order_items = create_order_items(socket.assigns)
+
+          # Calcular el total de la orden primero
+          total = calculate_total(socket.assigns)
+
+          # Crear la orden (usando solo string keys)
+          order_attrs = %{
+            "reservation_id" => reservation.id,
+            "special_instructions" => reservation_params["order_instructions"] || "",
+            "status" => "pending",
+            "total_amount" => total
+          }
+
+          case Orders.create_order(order_attrs, order_items) do
+            {:ok, _order} ->
+              {:noreply,
+               socket
+               |> put_flash(
+                 :info,
+                 "¡Gracias por tu reserva y pedido! Te notificaremos cuando tu pedido sea confirmado."
+               )
+               |> push_navigate(to: ~p"/restaurants/#{socket.assigns.restaurant}")}
+
+            {:error, _} ->
+              # Si falla la creación del pedido, igual mostramos éxito en la reserva
+              {:noreply,
+               socket
+               |> put_flash(
+                 :info,
+                 "¡Gracias por tu reserva! El restaurante se pondrá en comunicación contigo para confirmar los detalles."
+               )
+               |> push_navigate(to: ~p"/restaurants/#{socket.assigns.restaurant}")}
+          end
+        else
+          # Sin pre-orden, solo confirmamos la reserva
+          {:noreply,
+           socket
+           |> put_flash(
+             :info,
+             "¡Gracias por tu reserva! El restaurante se pondrá en comunicación contigo para confirmar los detalles."
+           )
+           |> push_navigate(to: ~p"/restaurants/#{socket.assigns.restaurant}")}
+        end
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, :form, to_form(changeset))}
+    end
+  end
+
+  @impl true
+  def handle_event("toggle_pre_order", _params, socket) do
+    {:noreply, assign(socket, :show_pre_order, !socket.assigns.show_pre_order)}
+  end
+
+  @impl true
+  def handle_event("increment", %{"id" => id}, socket) do
+    item_id = String.to_integer(id)
+    quantities = Map.update(socket.assigns.quantities, item_id, 1, &(&1 + 1))
+
+    {:noreply, assign(socket, :quantities, quantities)}
+  end
+
+  @impl true
+  def handle_event("decrement", %{"id" => id}, socket) do
+    item_id = String.to_integer(id)
+    current_qty = Map.get(socket.assigns.quantities, item_id, 0)
+
+    if current_qty > 0 do
+      quantities = Map.update(socket.assigns.quantities, item_id, 0, &max(0, &1 - 1))
+      {:noreply, assign(socket, :quantities, quantities)}
+    else
+      {:noreply, socket}
     end
   end
 
@@ -374,6 +551,64 @@ defmodule FoodReserveWeb.ReservationLive.New do
       next_time = Time.add(current_time, 30, :minute)
       generate_slots(next_time, end_time, [current_time | acc])
     end
+  end
+
+  # Función auxiliar para agrupar elementos del menú por categoría
+  defp group_by_category(menu_items) do
+    menu_items
+    |> Enum.group_by(fn item -> item.category end)
+  end
+
+  # Función auxiliar para obtener la cantidad de un elemento
+  defp get_item_quantity(assigns, item_id) do
+    Map.get(assigns.quantities, item_id, 0)
+  end
+
+  # Función auxiliar para calcular el total
+  defp calculate_total(assigns) do
+    Enum.reduce(assigns.quantities, Decimal.new(0), fn {item_id, qty}, acc ->
+      if qty > 0 do
+        item = Enum.find(assigns.menu_items, &(&1.id == item_id))
+        item_total = Decimal.mult(item.price, Decimal.new(qty))
+        Decimal.add(acc, item_total)
+      else
+        acc
+      end
+    end)
+  end
+
+  # Función auxiliar para contar elementos seleccionados
+  defp selected_items_count(assigns) do
+    Enum.count(assigns.quantities, fn {_, qty} -> qty > 0 end)
+  end
+
+  # Función auxiliar para verificar si hay elementos seleccionados
+  defp has_selected_items?(assigns) do
+    selected_items_count(assigns) > 0
+  end
+
+  # Función auxiliar para crear los elementos del pedido
+  defp create_order_items(assigns) do
+    menu_items_map =
+      Enum.reduce(assigns.menu_items, %{}, fn item, acc -> Map.put(acc, item.id, item) end)
+
+    assigns.quantities
+    |> Enum.filter(fn {_, qty} -> qty > 0 end)
+    |> Enum.map(fn {item_id, qty} ->
+      menu_item = menu_items_map[item_id]
+
+      %{
+        menu_item_id: item_id,
+        quantity: qty,
+        price: menu_item.price,
+        notes: ""
+      }
+    end)
+  end
+
+  # Función auxiliar para formatear precios
+  defp format_price(price) do
+    :erlang.float_to_binary(Decimal.to_float(price), decimals: 2)
   end
 
   # Handle real-time notifications

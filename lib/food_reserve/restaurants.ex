@@ -84,6 +84,23 @@ defmodule FoodReserve.Restaurants do
   end
 
   @doc """
+  Gets a single restaurant without scope restrictions (used for public access).
+
+  Raises `Ecto.NoResultsError` if the Restaurant does not exist.
+
+  ## Examples
+
+      iex> get_restaurant!(123)
+      %Restaurant{}
+
+      iex> get_restaurant!(456)
+      ** (Ecto.NoResultsError)
+  """
+  def get_restaurant!(id) do
+    Repo.get!(Restaurant, id)
+  end
+
+  @doc """
   Gets a single restaurant by ID for public access.
 
   Raises `Ecto.NoResultsError` if the Restaurant does not exist.

@@ -279,12 +279,40 @@ defmodule FoodReserve.Menus do
     from(mi in MenuItem,
       join: m in assoc(mi, :menu),
       join: r in assoc(m, :restaurant),
-      where: m.restaurant_id == ^restaurant_id,
-      where: r.user_id == ^scope.user.id,
-      order_by: [mi.category, mi.name],
-      preload: [:menu]
+      where: r.id == ^restaurant_id and r.user_id == ^scope.user.id,
+      order_by: [asc: mi.inserted_at],
+      preload: [menu: [:restaurant]]
     )
     |> Repo.all()
+  end
+
+  @doc """
+  Returns menu items for a restaurant, with option to filter only available items.
+
+  ## Examples
+
+      iex> list_menu_items_for_restaurant(restaurant_id, true)
+      [%MenuItem{}, ...] # only available items
+
+      iex> list_menu_items_for_restaurant(restaurant_id)
+      [%MenuItem{}, ...] # all items
+  """
+  def list_menu_items_for_restaurant(restaurant_id, only_available \\ false) do
+    query =
+      from(mi in MenuItem,
+        join: m in assoc(mi, :menu),
+        where: m.restaurant_id == ^restaurant_id,
+        order_by: [asc: mi.category, asc: mi.name]
+      )
+
+    query =
+      if only_available do
+        from([mi] in query, where: mi.available == true)
+      else
+        query
+      end
+
+    Repo.all(query)
   end
 
   @doc """
